@@ -70,6 +70,8 @@
                                                 </tr>";
                                                 $index++;
                                             endforeach;
+                                        else :
+                                            echo "<tr><td colspan='5'>No membership fee is due.</td></tr>";
                                         endif;
                                         ?>
                                     </tbody>
@@ -77,9 +79,11 @@
                             </table>
 
                         </div>
+                        <?php if(!empty($members)) : ?>
+                            <input type="submit" class="btn btn-primary" id="submit_pay" />
+                            <a href="<?= $admin_transaction_link; ?>" class="btn btn-danger">Cancel</a>
 
-                        <input type="submit" class="btn btn-primary" id="submit_pay" />
-                        <a href="<?= $admin_transaction_link; ?>" class="btn btn-danger">Cancel</a>
+                        <?php endif; ?>
                         </form>
                         <!-- LOGIC OF THE MONTHLY PAYMENT OF MEMBERSHIP END -->
                     </div> <!-- /.col-xs-12 -->
@@ -96,6 +100,9 @@
 </div><!-- /.main-container -->
 <?php echo $jquery_view; ?>
 <script>
+    $("#add_payments_li").addClass("active")
+        .parent()
+        .parent().addClass("active open");
     $('#all_checkbox').on('change', function(){
         if($(this).is(":checked") == true) {
             

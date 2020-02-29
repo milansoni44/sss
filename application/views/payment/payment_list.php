@@ -67,7 +67,7 @@
                                         <th>Address</th>
                                         <th>Amount</th>
                                         <th>Date</th>
-                                        <th>Fee Type</th>
+                                        <th>Fee</th>
                                         </thead>
                                         <tbody>
                                             <?php
