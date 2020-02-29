@@ -7,6 +7,20 @@ class Payments extends MY_Controller {
         parent::__construct();
         $this->data['module_name'] = "Payments";
     }
+
+    public function add_membership_fee() {
+        $this->data['page_name'] = "Membership Fee Pay";
+		$this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
+        $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
+
+        $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
+        $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
+
+        $this->load->view('layout/header', $this->data);
+        $this->load->view('payment/membership_fee', $this->data);
+        $this->load->view('layout/footer', $this->data);
+    }
+
 	public function index()
 	{        
         $transactions = $this->db->query("SELECT 
