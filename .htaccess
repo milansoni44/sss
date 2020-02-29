@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+# Turn on URL rewriting
+RewriteEngine On
+
+# Rewrite to index.php/URL
+RewriteCond $1 !^(index\.php|assets|jquery\.mobile|robots\.txt)
+RewriteRule ^(.*)$ index.php?/$1 [PT,L]
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+</IfModule>
