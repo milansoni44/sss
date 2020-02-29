@@ -199,6 +199,19 @@
                                                             <?php echo form_error('inactivity_date', '<div class="help-block">', '</div>'); ?>
                                                         </div>
 
+                                                        <label class="control-label col-xs-12 col-sm-2 no-padding-right"
+                                                               for="inactivity_date">Membership Fee:<span
+                                                                style="color:red;">*</span></label>
+
+                                                        <div class="col-xs-12 col-sm-4">
+                                                            <div class="clearfix">
+                                                                <input type="text" id="inactivity_date" name="membership_fee" placeholder="Membership Fee"
+                                                                       class="col-xs-12 col-sm-12" required
+                                                                       value="<?php echo set_value('membership_fee', html_entity_decode($user_info['membership_fee'], ENT_QUOTES)); ?>"/>
+                                                            </div>
+                                                            <?php echo form_error('membership_fee', '<div class="help-block">', '</div>'); ?>
+                                                        </div>
+
 
 
                                                     </div>
