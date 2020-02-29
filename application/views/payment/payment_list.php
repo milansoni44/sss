@@ -65,10 +65,9 @@
                                         <th>Mobile</th>
                                         <th>Member Type</th>
                                         <th>Address</th>
-                                        <th>Nominee1</th>
-                                        <th>Nominee2</th>
-                                        <th>Inactivity Date</th>
-                                        <th>Action</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Fee Type</th>
                                         </thead>
                                         <tbody>
                                             <?php
@@ -80,20 +79,9 @@
                                                         <td><?php echo $transaction['mobile']; ?></td>
                                                         <td><?php echo $transaction['user_type']; ?></td>
                                                         <td><?php echo $transaction['address']; ?></td>
-                                                        <td><?php echo $transaction['nominee1']; ?></td>
-                                                        <td><?php echo $transaction['nominee2']; ?></td>
-                                                        <td><?php echo $transaction['inactivity_date']; ?></td>
-                                                        <td>
-                                                            <a class="btn btn-primary btn-xs  no-padding-top no-padding-bottom" href="<?php echo $admin_add_user_link . '/' . $user['user_id']; ?>">
-                                                                <i class="fa fa-pencil"></i>
-                                                            </a>
-                                                            &nbsp;
-                                                        <!--<a title="Delete"
-                                                               class="btn btn-primary sts-btn btn-xs no-padding-top no-padding-bottom user_delete_btn"
-                                                               href="<?php /*echo base_url()*/?>user/delete_user/<?php /*echo $user['user_id']; */?>">
-                                                                <i class="fa fa-trash"></i>
-                                                            </a>-->
-                                                        </td>
+                                                        <td><?php echo $transaction['membership_fee_paid']; ?></td>
+                                                        <td><?php echo $transaction['created_at']; ?></td>
+                                                        <td><?php echo $transaction['fee_flag']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }

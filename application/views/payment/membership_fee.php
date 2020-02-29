@@ -78,7 +78,7 @@
 
                         </div>
 
-                        <input type="submit" class="btn btn-primary"/>
+                        <input type="submit" class="btn btn-primary" id="submit_pay" />
                         <a href="<?= $admin_transaction_link; ?>" class="btn btn-danger">Cancel</a>
                         </form>
                         <!-- LOGIC OF THE MONTHLY PAYMENT OF MEMBERSHIP END -->
@@ -116,5 +116,19 @@
         }).get();
         // console.log(all_checked_checkbox);
         // console.log(fee);
+        $("#submit_pay").attr("disabled", true);
+        $.ajax({
+            url: "<?php echo $admin_pay_membership_fee_link; ?>",
+            method: "POST",
+            dataType: "html",
+            async: false,
+            data: {
+                user_id: all_checked_checkbox,
+                membership_fee: fee
+            },
+            success: function(data){
+                location.reload();
+            }
+        })
     });
 </script>

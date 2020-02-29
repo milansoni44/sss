@@ -8,3 +8,5 @@ ALTER TABLE `user_master` ADD `membership_fee` DECIMAL(14,2) NOT NULL DEFAULT '0
 CREATE TABLE `sss`.`membership_fee` ( `id` INT NOT NULL AUTO_INCREMENT , `user_id` INT NOT NULL , `membership_fee_paid` DECIMAL(14,2) NOT NULL , `balance_due` DECIMAL(14,2) NOT NULL , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `fee_flag` ENUM('MEMBER_FEE','INSTITUTE_FEE','DEMISE_FEE') NOT NULL DEFAULT 'MEMBER_FEE' , `demise_user_id` INT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 RENAME TABLE `sss`.`membership_fee` TO `sss`.`transactions`;
+
+ALTER TABLE `transactions` CHANGE `fee_flag` `fee_flag` ENUM('MEMBER_FEE','INSTITUTE_FEE','DEMISE_FEE') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'MEMBER_FEE' COMMENT 'MEMBER_FEE | INSTITUTE_FEE | DEMISE_FEE';
