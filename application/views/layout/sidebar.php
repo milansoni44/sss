@@ -69,90 +69,6 @@
         </li>
 
 
-        <!--<li class="li_visibility">
-            <a href="#" class="dropdown-toggle">
-                <i class="menu-icon fa fa-user-plus"></i>
-                <span class="menu-text"> Course MGMT </span>
-                <b class="arrow fa fa-angle-down"></b>
-            </a>
-            <b class="arrow"></b>
-            <ul class="submenu">
-                <li id="add_course_li">
-                    <a href="<?php /*echo $admin_add_course_link; */?>">
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        Add Course
-                    </a>
-                    <b class="arrow"></b>
-                </li>
-                <li id="list_course_li">
-                    <a href="<?php /*echo $admin_course_list_link; */?>">
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        Course List
-                    </a>
-                    <b class="arrow"></b>
-                </li>
-                <li id="user_course_progress_li">
-                    <a href="<?php /*echo $admin_user_course_progress_link; */?>">
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        User Course Progress
-                    </a>
-                    <b class="arrow"></b>
-                </li>
-            </ul>
-        </li>
-
-        <li class="li_visibility">
-            <a href="#" class="dropdown-toggle">
-                <i class="menu-icon fa fa-user-plus"></i>
-                <span class="menu-text"> Chapter MGMT </span>
-                <b class="arrow fa fa-angle-down"></b>
-            </a>
-            <b class="arrow"></b>
-            <ul class="submenu">
-                <li id="add_chapter_li">
-                    <a href="<?php /*echo $admin_add_chapter_link; */?>">
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        Add Chapter
-                    </a>
-                    <b class="arrow"></b>
-                </li>
-                <li id="list_chapter_li">
-                    <a href="<?php /*echo $admin_chapter_list_link; */?>">
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        Chapter List
-                    </a>
-                    <b class="arrow"></b>
-                </li>
-            </ul>
-        </li>
-
-        <li class="li_visibility_user" id="my_course_li">
-            <a href="<?php /*echo $admin_my_course_link; */?>">
-                <i class="menu-icon fa fa-tachometer"></i>
-                <span class="menu-text"> My Courses </span>
-            </a>
-
-            <b class="arrow"></b>
-        </li>
-
-        <li class="li_visibility_user" id="my_completed_course_li">
-            <a href="<?php /*echo $admin_my_completed_course_link; */?>">
-                <i class="menu-icon fa fa-tachometer"></i>
-                <span class="menu-text">Completed Courses </span>
-            </a>
-
-            <b class="arrow"></b>
-        </li>
-
-        <li class="" id="results_li">
-            <a href="<?php /*echo $admin_result_link; */?>">
-                <i class="menu-icon fa fa-tachometer"></i>
-                <span class="menu-text"> Results </span>
-            </a>
-
-            <b class="arrow"></b>
-        </li>-->
-
         <li class="li_visibility">
             <a href="#" class="dropdown-toggle">
                 <i class="menu-icon fa fa-user-plus"></i>
@@ -172,6 +88,31 @@
                     <a href="<?php echo $admin_user_list_link; ?>">
                         <i class="menu-icon fa fa-caret-right"></i>
                         Member List
+                    </a>
+                    <b class="arrow"></b>
+                </li>
+            </ul>
+        </li>
+
+        <li class="li_visibility">
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa fa-user-plus"></i>
+                <span class="menu-text">Payments</span>
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+            <b class="arrow"></b>
+            <ul class="submenu">
+                <li id="add_payments_li">
+                    <a href="<?php //echo $admin_add_user_link; ?>#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Add Payment
+                    </a>
+                    <b class="arrow"></b>
+                </li>
+                <li id="payments_li">
+                    <a href="<?php //echo $admin_user_list_link; ?>#">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Transactions
                     </a>
                     <b class="arrow"></b>
                 </li>

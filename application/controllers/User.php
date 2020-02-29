@@ -70,6 +70,7 @@ class User extends MY_Controller {
                 'nominee1_reimbursement' => '',
                 'nominee2_reimbursement' => '',
                 'inactivity_date' => '',
+                'membership_fee'=>0
             );
 
 
@@ -100,7 +101,7 @@ class User extends MY_Controller {
             if ($this->form_validation->run() !== FALSE) {
                 $data = $this->input->post();
 
-
+                // echo "<pre>"; print_r($data);die;
 
                 $new_user_id = $this->user_model->addUpdateUser($data, $user_id);
                 if ($new_user_id) {
