@@ -1,6 +1,6 @@
 <?php
 /**
- * CodeIgniter
+ * CodeIgniter Snehal Change
  *
  * An open source application development framework for PHP
  *
