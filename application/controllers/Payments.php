@@ -10,10 +10,14 @@ class Payments extends MY_Controller {
     }
 
     public function pay_membership_fee() {
-        if($this->debug) {
-            echo "<pre>"; 
-            print_r($this->input->post());
-            echo "</pre>"
+        if($this->input->server("REQUEST_METHOD") == "POST") {
+            if($this->debug) {
+                echo "<pre>"; 
+                print_r($this->input->post());
+                echo "</pre>";
+            }
+        } else {
+            show_404();
         }
     }
 
@@ -38,12 +42,12 @@ class Payments extends MY_Controller {
         
         $resultArr = $this->db->query($sql)->result_array();
         if($this->debug) {
-            echo "<pre>";
+            /*echo "<pre>";
             echo $this->db->last_query();
             echo "-----------------------------------------------------------";
             echo "<br/>";
             print_r($resultArr);
-            echo "</pre>";   
+            echo "</pre>";*/
         }
 
         $this->data['members'] = $resultArr;

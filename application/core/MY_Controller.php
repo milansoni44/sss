@@ -42,6 +42,7 @@ class MY_Controller extends CI_Controller
     {
         $this->data['admin_dashboard_link'] = $this->data['admin_base_url'] . 'dashboard/';
         $this->user_module_links();
+        $this->payment_module_links();
     }
 
     public function user_module_links()
@@ -52,6 +53,17 @@ class MY_Controller extends CI_Controller
         $this->data['admin_profile_link'] = $primary_url . 'profile';
         $this->data['admin_user_list_link'] = $primary_url . 'userList';
         $this->data['admin_user_status_change_link'] = $primary_url . 'statusChange';
+
+        // ******************************** User Module * End ********************************
+    }
+
+    public function payment_module_links()
+    {
+        // ******************************** User Module * Start ********************************
+        $primary_url = $this->data['admin_base_url'] . 'payments/';
+        $this->data['admin_add_membership_fee_link'] = $primary_url . 'add_membership_fee';
+        $this->data['admin_transaction_link'] = $primary_url . 'index';
+        $this->data['admin_pay_membership_fee_link'] = $primary_url . 'pay_membership_fee';
 
         // ******************************** User Module * End ********************************
     }

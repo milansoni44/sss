@@ -44,7 +44,7 @@
                         <?php } ?>
 
                         <!-- LOGIC OF THE MONTHLY PAYMENT OF MEMBERSHIP START -->
-                        <form method="post" action="" >
+                        <form method="post" action="<?= $admin_pay_membership_fee_link; ?>" id="pay_fee" >
                         <div>
                             
                             <table class="table">
@@ -63,9 +63,10 @@
                                                 echo "<tr style='text-align: center'>
                                                     <td><input type='checkbox' name='user_id[]' value='{$member['user_id']}' class='user_checkbox' /></td>
                                                     <td>{$index}</td>
-                                                    <td>{$member['name']}</td>
+                                                    <td class='member_name'>{$member['name']}</td>
                                                     <td>".date('M')."</td>
                                                     <td>{$member['membership_fee']}</td>
+                                                    <input type='hidden' name='membership_fee[]' value='{$member['membership_fee']}' class='membership_fee' />
                                                 </tr>";
                                                 $index++;
                                             endforeach;
@@ -77,7 +78,8 @@
 
                         </div>
 
-                        <input type="submit" />
+                        <input type="submit" class="btn btn-primary"/>
+                        <a href="<?= $admin_transaction_link; ?>" class="btn btn-danger">Cancel</a>
                         </form>
                         <!-- LOGIC OF THE MONTHLY PAYMENT OF MEMBERSHIP END -->
                     </div> <!-- /.col-xs-12 -->
@@ -102,4 +104,17 @@
             $('.user_checkbox').prop('checked', false);
         }
     })
+
+    $("#pay_fee").on('submit', function(e){
+        e.preventDefault();
+        var checkbox_filter = $('.user_checkbox').filter(":checked");
+        var all_checked_checkbox = checkbox_filter.map(function(){
+            return $(this).val();
+        }).get();
+        var fee = checkbox_filter.closest('tr').find('.membership_fee').map(function(){
+            return $(this).val();
+        }).get();
+        // console.log(all_checked_checkbox);
+        // console.log(fee);
+    });
 </script>

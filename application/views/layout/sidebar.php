@@ -103,14 +103,14 @@
             <b class="arrow"></b>
             <ul class="submenu">
                 <li id="add_payments_li">
-                    <a href="<?php //echo $admin_add_user_link; ?>#">
+                    <a href="<?php echo $admin_add_membership_fee_link; ?>">
                         <i class="menu-icon fa fa-caret-right"></i>
                         Add Payment
                     </a>
                     <b class="arrow"></b>
                 </li>
                 <li id="payments_li">
-                    <a href="<?php //echo $admin_user_list_link; ?>#">
+                    <a href="<?php echo $admin_transaction_link; ?>">
                         <i class="menu-icon fa fa-caret-right"></i>
                         Transactions
                     </a>
