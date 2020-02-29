@@ -72,17 +72,17 @@
                                         </thead>
                                         <tbody>
                                             <?php
-                                            if (!empty($user_info)) {
-                                                foreach ($user_info as $user) {
+                                            if (!empty($transactions)) {
+                                                foreach ($transactions as $transaction) {
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo $user['name']; ?></td>
-                                                        <td><?php echo $user['mobile']; ?></td>
-                                                        <td><?php echo $user['user_type']; ?></td>
-                                                        <td><?php echo $user['address']; ?></td>
-                                                        <td><?php echo $user['nominee1']; ?></td>
-                                                        <td><?php echo $user['nominee2']; ?></td>
-                                                        <td><?php echo $user['inactivity_date']; ?></td>
+                                                        <td><?php echo $transaction['name']; ?></td>
+                                                        <td><?php echo $transaction['mobile']; ?></td>
+                                                        <td><?php echo $transaction['user_type']; ?></td>
+                                                        <td><?php echo $transaction['address']; ?></td>
+                                                        <td><?php echo $transaction['nominee1']; ?></td>
+                                                        <td><?php echo $transaction['nominee2']; ?></td>
+                                                        <td><?php echo $transaction['inactivity_date']; ?></td>
                                                         <td>
                                                             <a class="btn btn-primary btn-xs  no-padding-top no-padding-bottom" href="<?php echo $admin_add_user_link . '/' . $user['user_id']; ?>">
                                                                 <i class="fa fa-pencil"></i>
@@ -121,27 +121,18 @@
 
 <!-- basic scripts -->
 <script>
-    var current_page = "list_user_page";
+    //var current_page = "list_user_page";
 </script>
 <?php echo $jquery_view; ?>
 
 <script>
-    $("#list_user_li").addClass("active")
+    $("#payments_li").addClass("active")
         .parent()
         .parent().addClass("active open");
 
     var $dynamic_table = $('#dynamic_table');
     $dynamic_table.dataTable({
         "pageLength": 25
-    });
-</script>
-
-
-<script>
-    $('.user_delete_btn').click(function () {
-        // escape here if the confirm is false;
-        if (!confirm('All the data of this user will be deleted. Are you sure you want to Delete?')) return false;
-
     });
 </script>
 
