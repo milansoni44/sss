@@ -218,6 +218,7 @@ class User extends MY_Controller {
                 }
 
                 if($result4 && $result3 && $result2 && $result1) {
+                    
                     $this->session->set_flashdata("success", "Member's nominee is not changed yet.");
                 }
                 redirect($this->data['admin_user_list_link'], 'location');
