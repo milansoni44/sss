@@ -35,7 +35,7 @@
                                             <div class="step-pane active" data-step="1">
 
                                                 <form class="form-horizontal" id="add_user_form" method="post"
-                                                      action="<?php echo $admin_add_user_link; ?>">
+                                                      action="<?php echo base_url(); ?>user/change_nominee/<?php echo $user_id; ?>">
 
                                                     <div class="form-group">
                                                         <label class="control-label col-xs-12 col-sm-2 no-padding-right"
@@ -66,9 +66,6 @@
                                                     </div>
 
                                                     <div class="form-group">
-
-
-
                                                         <label class="control-label col-xs-12 col-sm-2 no-padding-right"
                                                                for="nominee2">Nominee2:<span
                                                                 style="color:red;">*</span></label>
@@ -95,11 +92,7 @@
                                                             <?php echo form_error('nominee2_reimbursement', '<div class="help-block">', '</div>'); ?>
                                                         </div>
                                                     </div>
-
-                                                    
                                                     <div class="space-2"></div>
-
-
 
                                                     <h4 class="header smaller lighter blue">
                                                        &nbsp;
@@ -118,7 +111,6 @@
                                                     </div>
                                                 </form>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div><!-- /.widget-main -->

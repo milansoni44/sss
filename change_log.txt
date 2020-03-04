@@ -10,3 +10,9 @@ CREATE TABLE `sss`.`membership_fee` ( `id` INT NOT NULL AUTO_INCREMENT , `user_i
 RENAME TABLE `sss`.`membership_fee` TO `sss`.`transactions`;
 
 ALTER TABLE `transactions` CHANGE `fee_flag` `fee_flag` ENUM('MEMBER_FEE','INSTITUTE_FEE','DEMISE_FEE') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'MEMBER_FEE' COMMENT 'MEMBER_FEE | INSTITUTE_FEE | DEMISE_FEE';
+
+***************************
+|Changes dated: 04-03-2020|
+***************************
+
+ALTER TABLE `transactions` CHANGE `fee_flag` `fee_flag` ENUM('MEMBER_FEE','INSTITUTE_FEE','DEMISE_FEE','NOMINEE_FEE') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'MEMBER_FEE' COMMENT 'MEMBER_FEE | INSTITUTE_FEE | DEMISE_FEE|NOMINEE_FEE';

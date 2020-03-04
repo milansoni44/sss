@@ -87,7 +87,7 @@
                                                             <a class="btn btn-primary btn-xs  no-padding-top no-padding-bottom" href="<?php echo $admin_add_user_link . '/' . $user['user_id']; ?>">
                                                                 <i class="fa fa-pencil"></i>
                                                             </a>
-                                                            <a href="" class="btn btn-primary btn-xs  no-padding-top no-padding-bottom">
+                                                            <a href="<?php echo base_url(); ?>user/change_nominee/<?php echo $user['user_id']; ?>" class="btn btn-primary btn-xs  no-padding-top no-padding-bottom">
                                                                 Change Nominee
                                                             </a>
                                                             &nbsp;
