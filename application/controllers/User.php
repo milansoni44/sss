@@ -129,6 +129,30 @@ class User extends MY_Controller {
         $this->load->view('layout/footer', $this->data);
     }
 
+    public function change_nominee($user_id = NULL) {
+        if($user_id) {
+            $this->data['page_name'] = 'Nominee Update';
+            $this->data['user_id'] = $user_id;
+            $user_info = $this->user_model->get_user(["user_id"=>$user_id]);
+
+            $this->data['user_info'] = $user_info;
+            
+            $this->data['breadcrumb'] = $this->load->view('user/breadcrumb', $this->data, TRUE);
+            $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
+
+            $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
+            $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
+
+            $this->load->view('layout/header', $this->data);
+            $this->load->view('user/nominee', $this->data);
+            $this->load->view('layout/footer', $this->data);
+
+
+        } else {
+            show_404();
+        }
+    }
+
     public function profile() {
         $this->data['page_name'] = 'Profile Update';
         $this->data['task_type'] = "edit";

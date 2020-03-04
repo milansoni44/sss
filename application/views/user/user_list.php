@@ -87,6 +87,9 @@
                                                             <a class="btn btn-primary btn-xs  no-padding-top no-padding-bottom" href="<?php echo $admin_add_user_link . '/' . $user['user_id']; ?>">
                                                                 <i class="fa fa-pencil"></i>
                                                             </a>
+                                                            <a href="" class="btn btn-primary btn-xs  no-padding-top no-padding-bottom">
+                                                                Change Nominee
+                                                            </a>
                                                             &nbsp;
                                                         <!--<a title="Delete"
                                                                class="btn btn-primary sts-btn btn-xs no-padding-top no-padding-bottom user_delete_btn"
