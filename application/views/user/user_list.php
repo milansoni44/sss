@@ -90,12 +90,6 @@
                                                             <a href="<?php echo base_url(); ?>user/change_nominee/<?php echo $user['user_id']; ?>" class="btn btn-primary btn-xs  no-padding-top no-padding-bottom">
                                                                 Change Nominee
                                                             </a>
-                                                            &nbsp;
-                                                        <!--<a title="Delete"
-                                                               class="btn btn-primary sts-btn btn-xs no-padding-top no-padding-bottom user_delete_btn"
-                                                               href="<?php /*echo base_url()*/?>user/delete_user/<?php /*echo $user['user_id']; */?>">
-                                                                <i class="fa fa-trash"></i>
-                                                            </a>-->
                                                         </td>
                                                     </tr>
                                                     <?php

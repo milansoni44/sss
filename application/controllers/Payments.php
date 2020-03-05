@@ -66,14 +66,12 @@ class Payments extends MY_Controller {
                 ";
         
         $resultArr = $this->db->query($sql)->result_array();
-        if($this->debug) {
-            /*echo "<pre>";
-            echo $this->db->last_query();
-            echo "-----------------------------------------------------------";
-            echo "<br/>";
-            print_r($resultArr);
-            echo "</pre>";*/
-        }
+        /*echo "<pre>";
+        echo $this->db->last_query();
+        echo "-----------------------------------------------------------";
+        echo "<br/>";
+        print_r($resultArr);
+        echo "</pre>";*/
 
         $this->data['members'] = $resultArr;
         $this->data['page_name'] = "Membership Fee Pay";
@@ -108,5 +106,18 @@ class Payments extends MY_Controller {
         $this->load->view('layout/header', $this->data);
         $this->load->view('payment/payment_list', $this->data);
         $this->load->view('layout/footer', $this->data);
-	}
+    }
+    
+    public function generate_invoice() {
+        $this->data['page_name'] = "Generate Invoice";
+        $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
+        $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
+
+        $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
+        $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
+
+        $this->load->view('layout/header', $this->data);
+        $this->load->view('payment/payment_list', $this->data);
+        $this->load->view('layout/footer', $this->data);
+    }
 }

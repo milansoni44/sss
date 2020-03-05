@@ -218,7 +218,7 @@ class User extends MY_Controller {
                 }
 
                 if($result4 && $result3 && $result2 && $result1) {
-                    
+
                     $this->session->set_flashdata("success", "Member's nominee is not changed yet.");
                 }
                 redirect($this->data['admin_user_list_link'], 'location');
@@ -311,7 +311,7 @@ class User extends MY_Controller {
     }
 
     public function userList() {
-	$this->data['page_name'] = 'List Member';
+	    $this->data['page_name'] = 'List Member';
         $this->data['user_info'] = $this->user_model->get_user();
         $this->data['breadcrumb'] = $this->load->view('user/breadcrumb', $this->data, TRUE);
         $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
@@ -323,7 +323,6 @@ class User extends MY_Controller {
         $this->load->view('user/user_list', $this->data);
         $this->load->view('layout/footer', $this->data);
     }
-
 
     public function delete_user($user_id) {
 
