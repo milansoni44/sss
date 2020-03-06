@@ -64,6 +64,7 @@ class MY_Controller extends CI_Controller
         $this->data['admin_add_membership_fee_link'] = $primary_url . 'add_membership_fee';
         $this->data['admin_transaction_link'] = $primary_url . 'index';
         $this->data['admin_pay_membership_fee_link'] = $primary_url . 'pay_membership_fee';
+        $this->data['admin_post_payment_individually'] = $primary_url . 'post_payment_individually';
 
         // ******************************** User Module * End ********************************
     }
