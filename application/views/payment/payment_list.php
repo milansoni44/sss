@@ -71,24 +71,7 @@
                                         <th>Status</th>
                                         </thead>
                                         <tbody>
-                                            <?php
-                                            if (!empty($transactions)) {
-                                                foreach ($transactions as $transaction) {
-                                                    ?>
-                                                    <tr>
-                                                        <td><?php echo $transaction['name']; ?></td>
-                                                        <td><?php echo $transaction['mobile']; ?></td>
-                                                        <td><?php echo $transaction['user_type']; ?></td>
-                                                        <td><?php echo $transaction['address']; ?></td>
-                                                        <td><?php echo $transaction['amount']; ?></td>
-                                                        <td><?php echo $transaction['date_created']; ?></td>
-                                                        <td><?php echo $transaction['ledger_account']; ?></td>
-                                                        <td><?php echo $transaction['status']; ?></td>
-                                                    </tr>
-                                                    <?php
-                                                }
-                                            }
-                                            ?>
+                                            
                                         </tbody>
                                     </table>
                                 </div>
@@ -121,8 +104,26 @@
         .parent().addClass("active open");
 
     var $dynamic_table = $('#dynamic_table');
-    $dynamic_table.dataTable({
-        "pageLength": 25
-    });
+    var oTable = $dynamic_table
+		.DataTable({
+			"processing": true,
+			"serverSide": true,
+			"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+			"ajax":{
+                "url": "<?php echo base_url(); ?>payments/index",
+                "dataType": "json",
+                "type": "POST",
+            },
+            "columns": [
+                { "data": "name" },
+                { "data": "mobile" },
+                { "data": "user_type" },
+                { "data": "address" },
+                { "data": "amount" },
+                { "data": "date_created" },
+                { "data": "ledger_account" },
+                { "data": "status" }
+            ],
+		});
 </script>
 

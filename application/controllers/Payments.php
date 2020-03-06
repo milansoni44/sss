@@ -21,8 +21,7 @@ class Payments extends MY_Controller {
                     $arrTransaction[$index] = [
                         'user_id'               => $user[$index],
                         'membership_fee_paid'   => $fee[$index],
-                        'created_at'            => date('Y-m-d H:i:s'),
-                        // 'fee_flag'              => 'MEMBER_FEE'
+                        'created_at'            => date('Y-m-d H:i:s')
                     ];
                 }
 
@@ -87,26 +86,91 @@ class Payments extends MY_Controller {
     }
 
 	public function index()
-	{        
-        $transactions = $this->db->query("SELECT 
-                            transactions.*,
-                            user_master.name,
-                            user_master.mobile,
-                            user_master.user_type,
-                            user_master.address,
-                            (
-                                CASE 
-                                    WHEN transactions.ledger_id IS NOT NULL THEN ledger.name
-                                    WHEN transactions.demise_user_id IS NOT NULL THEN demise_user.name
-                                    ELSE NULL
-                                END
-                            ) AS ledger_account
-                        FROM transactions
-                        LEFT JOIN user_master ON user_master.user_id = transactions.user_id
-                        LEFT JOIN user_master AS demise_user ON demise_user.user_id = transactions.demise_user_id
-                        LEFT JOIN ledger ON ledger.id = transactions.ledger_id
-                        ")->result_array();
-        $this->data['transactions'] = $transactions;
+	{
+        if($this->input->is_ajax_request()) {
+            $request = $_REQUEST;
+            $columns = [
+                'user_master.name',
+                'user_master.mobile',
+                'user_master.user_type',
+                'user_master.address',
+                'transactions.amount',
+                'transactions.date_created',
+                'ledger_account',
+                'transactions.status'
+            ];
+
+            $where = " WHERE 1=1";
+
+            if( !empty($request['search']['value']) ) {
+
+                $search_value = $this->db->escape_like_str($request['search']['value']);
+
+                $where .= " AND ( ";
+                $where .="user_master.name LIKE '%".$search_value."%' ";
+                $where .= " OR user_master.mobile LIKE '%".$search_value."%' ";
+                $where .= " OR user_master.user_type LIKE '%".$search_value."%' ";
+                $where .= " OR user_master.address LIKE '%".$search_value."%' ";
+                $where .= " OR transactions.amount LIKE '%".$search_value."%' ";
+                $where .= " OR transactions.date_created LIKE '%".$search_value."%' ";
+                $where .= " OR transactions.status = '".$search_value."' ";
+                $where .= " )";
+            }
+
+            $sql = "SELECT 
+                        transactions.*,
+                        user_master.name,
+                        user_master.mobile,
+                        user_master.user_type,
+                        user_master.address,
+                        (
+                            CASE 
+                                WHEN transactions.ledger_id IS NOT NULL THEN ledger.name
+                                WHEN transactions.demise_user_id IS NOT NULL THEN demise_user.name
+                                ELSE NULL
+                            END
+                        ) AS ledger_account
+                    FROM transactions
+                    LEFT JOIN user_master ON user_master.user_id = transactions.user_id
+                    LEFT JOIN user_master AS demise_user ON demise_user.user_id = transactions.demise_user_id
+                    LEFT JOIN ledger ON ledger.id = transactions.ledger_id
+                    ";
+
+            // echo "<pre>".$sql;die;
+            $rs = $this->db->query($sql.$where);
+            $records_total = $this->db->affected_rows();
+            $records_filtered = $records_total;
+
+            $orderBy = "";
+            if( count($request['order']) > 0 ) {
+
+                $temp = array();
+
+                foreach($request['order'] as $order){
+                    $temp[]= "".$columns[$order['column']]." ".$order['dir'];
+                }
+                $orderBy .= " ORDER BY ";
+                $orderBy .= implode(",",$temp);
+            }
+
+            $c = $this->db->query($sql.$where.$orderBy);
+            $records_filtered = $this->db->affected_rows();
+            $limit = "";
+            if($request['length'] != -1){
+                $limit .= " LIMIT ".$request['start']." ,".$request['length'];
+            }
+
+            $rs = $this->db->query($sql.$where.$orderBy.$limit);
+            $data =  $rs->result_array();
+
+            $json_data = array(
+                "draw"            => intval( $request['draw'] ),
+                "recordsTotal"    => intval( $records_total ),
+                "recordsFiltered" => intval( $records_filtered ),
+                "data"            => $data
+            );
+            echo json_encode($json_data);die;
+        }
         $this->data['page_name'] = "Payments";
 		$this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
         $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
