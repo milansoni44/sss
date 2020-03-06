@@ -162,18 +162,21 @@ class Payments extends MY_Controller {
 
         if(!empty($active_members)) {
             foreach($active_members as $transaction) {
-                $institute = [
-                    'user_id'=>$transaction['user_id'],
-                    'amount'=>$transaction['institute_rate'],
-                    'ledger_id'=>3,
-                    'date_created'=>date('Y-m-d H:i:s'),
-                    'status'=>'UNPAID'
-                ];
-                // print_r($institute);
 
-                $this->db->insert("transactions", $institute);
-                
                 $txtArr = explode(',', $transaction['demises_ids']);
+                if(!empty($txtArr)) {
+                    $institute = [
+                        'user_id'=>$transaction['user_id'],
+                        'amount'=>$transaction['institute_rate'],
+                        'ledger_id'=>3,
+                        'date_created'=>date('Y-m-d H:i:s'),
+                        'status'=>'UNPAID'
+                    ];
+                    // print_r($institute);
+    
+                    $this->db->insert("transactions", $institute);
+                }
+
                 // print_r($demiseArr);
                 foreach($txtArr as $txn) {
                     
