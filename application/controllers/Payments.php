@@ -249,7 +249,9 @@ class Payments extends MY_Controller {
                 $this->db->insert('transactions', $transactions);
 
                 // update institute ledger account
-                $this->db->update("ledger", ["balance"=>"balance-{$int_paid_amount}"]);
+                $this->db->set('balance', 'balance-'.$int_paid_amount, false);
+                $this->db->where('id' , 3);
+                $this->db->update('ledger');
             }
         }
         die;
