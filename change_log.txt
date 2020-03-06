@@ -16,3 +16,29 @@ ALTER TABLE `transactions` CHANGE `fee_flag` `fee_flag` ENUM('MEMBER_FEE','INSTI
 ***************************
 
 ALTER TABLE `transactions` CHANGE `fee_flag` `fee_flag` ENUM('MEMBER_FEE','INSTITUTE_FEE','DEMISE_FEE','NOMINEE_FEE') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'MEMBER_FEE' COMMENT 'MEMBER_FEE | INSTITUTE_FEE | DEMISE_FEE|NOMINEE_FEE';
+
+***************************
+|Changes dated: 06-03-2020|
+***************************
+
+CREATE TABLE `sss`.`ledger` ( `id` INT NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL , `balance` DECIMAL(14,2) NOT NULL , `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `transactions` CHANGE `membership_fee_paid` `amount` DECIMAL(14,2) NULL;
+
+ALTER TABLE `transactions` DROP `balance_due`;
+ALTER TABLE `transactions` CHANGE `fee_flag` `ledger_id` INT NULL;
+ALTER TABLE `transactions` ADD `date_created` DATETIME NULL AFTER `demise_user_id`, ADD `date_paid` DATETIME NULL AFTER `date_created`;
+ALTER TABLE `transactions` ADD `status` ENUM('PAID','UNPAID') NOT NULL DEFAULT 'UNPAID' COMMENT 'PAID|UNPAID' AFTER `date_paid`;
+DROP TABLE `demises`, `invoices`;
+ALTER TABLE `transactions` ADD `payment_mode` VARCHAR(255) NULL AFTER `date_paid`;
+
+INSERT INTO `ledger` (`id`, `name`, `balance`, `created_at`) VALUES
+(1, 'Administrative', '0.00', '2020-03-06 09:42:48'),
+(2, 'Nominee Change', '0.00', '2020-03-06 09:42:48'),
+(3, 'Institute', '0.00', '2020-03-06 09:43:01'),
+(4, 'Penalty', '0.00', '2020-03-06 09:43:10');
+
+ALTER TABLE `transactions` DROP `created_at`;
+
+ALTER TABLE `user_master` ADD `balance` DECIMAL(14,2) NULL DEFAULT '0' AFTER `inactivity_date`;
+ALTER TABLE `transactions` ADD `type` ENUM('Debit','Credit') NOT NULL DEFAULT 'Debit' AFTER `status`;

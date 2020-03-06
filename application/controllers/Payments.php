@@ -90,10 +90,21 @@ class Payments extends MY_Controller {
 	{        
         $transactions = $this->db->query("SELECT 
                             transactions.*,
-                            user_master.*
+                            user_master.name,
+                            user_master.mobile,
+                            user_master.user_type,
+                            user_master.address,
+                            (
+                                CASE 
+                                    WHEN transactions.ledger_id IS NOT NULL THEN ledger.name
+                                    WHEN transactions.demise_user_id IS NOT NULL THEN demise_user.name
+                                    ELSE NULL
+                                END
+                            ) AS ledger_account
                         FROM transactions
                         LEFT JOIN user_master ON user_master.user_id = transactions.user_id
                         LEFT JOIN user_master AS demise_user ON demise_user.user_id = transactions.demise_user_id
+                        LEFT JOIN ledger ON ledger.id = transactions.ledger_id
                         ")->result_array();
         $this->data['transactions'] = $transactions;
         $this->data['page_name'] = "Payments";
@@ -109,7 +120,88 @@ class Payments extends MY_Controller {
     }
     
     public function generate_invoice() {
-        $this->data['page_name'] = "Generate Invoice";
+
+        $active_members = $this->db->query("SELECT
+                                                user_id
+                                            FROM user_master
+                                            WHERE status = 'Active'
+                                            AND user_type <> 'Admin'
+                                            ")->result_array();
+                
+        // echo "<pre>"; 
+        // echo "Total Active Members :".count($active_members)."<br/>";
+        // print_r($active_members);
+
+        /*Get Total Inactive members of last 6 month*/
+        $demise_members = $this->db->query("SELECT
+                                                COUNT(*) AS total_demises,
+                                                GROUP_CONCAT(user_id) AS user_demises_ids
+                                            FROM user_master
+                                            WHERE status = 'Deactive'
+                                            AND user_type <> 'Admin'
+                                            AND inactivity_date BETWEEN '2019-07-01' AND '2020-03-31'
+                                            ")->row_array();
+
+        // echo "Total Demise Members :".$demise_members['total_demises']."<br/>";
+        // print_r($demise_members);die;
+        // die;
+
+        if(!empty($active_members)) {
+            foreach($active_members as &$member) {
+                $member['demise_rate'] = ($demise_members['total_demises']*100);
+                $member['institute_rate'] = ($demise_members['total_demises']*30);
+                $member['administrative_rate_unit'] = (1*90);
+                $member['total_demise'] = $demise_members['total_demises'];
+                $member['demise_rate_unit'] = 100;
+                $member['institute_rate_unit'] = 30;
+                $member['demises_ids'] = $demise_members['user_demises_ids'];
+            }
+        }
+        // print_r($active_members);
+        // die;
+
+        if(!empty($active_members)) {
+            foreach($active_members as $transaction) {
+                $institute = [
+                    'user_id'=>$transaction['user_id'],
+                    'amount'=>$transaction['institute_rate'],
+                    'ledger_id'=>3,
+                    'date_created'=>date('Y-m-d H:i:s'),
+                    'status'=>'UNPAID'
+                ];
+                // print_r($institute);
+
+                $this->db->insert("transactions", $institute);
+                
+                $txtArr = explode(',', $transaction['demises_ids']);
+                // print_r($demiseArr);
+                foreach($txtArr as $txn) {
+                    
+                    $demise = [
+                        'user_id'=>$transaction['user_id'],
+                        'amount'=>100,
+                        'demise_user_id'=>$txn,
+                        'date_created'=>date('Y-m-d H:i:s'),
+                        'status'=>'UNPAID'
+                    ];
+                    $this->db->insert("transactions", $demise);
+                    // print_r($demise);
+                }
+
+                $administrative = [
+                    'user_id'=>$transaction['user_id'],
+                    'amount'=>90,
+                    'ledger_id'=>1,
+                    'date_created'=>date('Y-m-d H:i:s'),
+                    'status'=>'UNPAID'
+                ];
+                
+                // print_r($administrative);
+                $this->db->insert("transactions", $administrative);
+            }
+        }
+
+        /* $this->data['page_name'] = "Generate Invoice";
         $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
         $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
 
@@ -118,6 +210,48 @@ class Payments extends MY_Controller {
 
         $this->load->view('layout/header', $this->data);
         $this->load->view('payment/payment_list', $this->data);
-        $this->load->view('layout/footer', $this->data);
+        $this->load->view('layout/footer', $this->data); */
+
+        echo "Success";
+    }
+
+    public function interest_paid() {
+        // 3 monthly
+        // pay interest 4% in user account
+
+        $interests = $this->db->query("SELECT
+                            user_master.*
+                        FROM user_master
+                        WHERE user_type = 'Advance Deposite'
+                        AND status = 'Active'
+                        ")->result_array();
+        echo "<pre>";
+        echo "Total Advance Deposite Members : ".count($interests)."<br/>";
+        print_r($interests);
+
+        if(!empty($interests)) {
+            foreach($interests as $interest) {
+                $int_paid_amount = (float)(($interest['balance']*4)/100);
+                echo "User_id : {$interest['user_id']} Balance : ".$interest['balance']." Interest Amount : {$int_paid_amount}<br/>";
+                $this->db->query("UPDATE user_master SET balance = {$interest['balance']}+{$int_paid_amount}");
+
+                $transactions = [
+                    'user_id'=>$interest['user_id'],
+                    'amount'=>$int_paid_amount,
+                    'ledger_id'=>3,
+                    'date_created'=>date('Y-m-d H:i:s'),
+                    'date_paid'=>date('Y-m-d H:i:s'),
+                    'payment_mode'=>'AUTO',
+                    'status'=>'PAID',
+                    'type'=>'Credit'
+                ];
+
+                $this->db->insert('transactions', $transactions);
+
+                // update institute ledger account
+                $this->db->update("ledger", ["balance"=>"balance-{$int_paid_amount}"]);
+            }
+        }
+        die;
     }
 }

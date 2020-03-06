@@ -21,7 +21,8 @@ class User_model extends MY_Model
 		}
 		else
 		{
-               $data['insert_date'] = date('Y-m-d H:i:s');
+            $data['status'] = 'Active';
+            $data['insert_date'] = date('Y-m-d H:i:s');
 
 			$result = $this->db->insert('user_master', $data );
 			return $result ? $this->db->insert_id() : FALSE;

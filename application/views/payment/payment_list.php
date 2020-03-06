@@ -67,7 +67,8 @@
                                         <th>Address</th>
                                         <th>Amount</th>
                                         <th>Date</th>
-                                        <th>Fee</th>
+                                        <th>Account</th>
+                                        <th>Status</th>
                                         </thead>
                                         <tbody>
                                             <?php
@@ -79,9 +80,10 @@
                                                         <td><?php echo $transaction['mobile']; ?></td>
                                                         <td><?php echo $transaction['user_type']; ?></td>
                                                         <td><?php echo $transaction['address']; ?></td>
-                                                        <td><?php echo $transaction['membership_fee_paid']; ?></td>
-                                                        <td><?php echo $transaction['created_at']; ?></td>
-                                                        <td><?php echo $transaction['fee_flag']; ?></td>
+                                                        <td><?php echo $transaction['amount']; ?></td>
+                                                        <td><?php echo $transaction['date_created']; ?></td>
+                                                        <td><?php echo $transaction['ledger_account']; ?></td>
+                                                        <td><?php echo $transaction['status']; ?></td>
                                                     </tr>
                                                     <?php
                                                 }
