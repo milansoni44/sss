@@ -34,6 +34,7 @@ class Payments extends MY_Controller {
                 $this->db->trans_start();
                 $this->db->insert_batch('transactions', $arrTransaction);
                 $this->db->trans_complete();
+                
                 if($this->db->trans_status()) {
                     $this->session->set_flashdata("success", "Membership fee paid successfully.");
                 } else {
