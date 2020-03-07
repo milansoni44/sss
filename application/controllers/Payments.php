@@ -474,7 +474,7 @@ class Payments extends MY_Controller {
 
         $this->data['page_name'] = 'Recieve Payment';                
 
-        $this->data['members'] = $this->db->select("user_id, name")->get("user_master")->result_array();
+        $this->data['members'] = $this->db->select("user_id, name")->from("user_master")->where("user_type <> 'Admin'")->get()->result_array();
 
         $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
         $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
@@ -597,9 +597,9 @@ class Payments extends MY_Controller {
         $this->load->view('layout/footer', $this->data);
     }
 
-    public function send_invoice_email() {
+    public function send_invoice_email($user_id) {
 
-        $member = $this->db->where("user_id",3)->get("user_master")->row_array();
+        $member = $this->db->where("user_id",$user_id)->get("user_master")->row_array();
 
         $pending_payments = $this->db
                                     ->query("SELECT
@@ -638,12 +638,12 @@ class Payments extends MY_Controller {
         $html .= $this->load->view('payment_pdf_template/invoice_header_only', $this->data, true);
         $html .= $this->load->view('payment_pdf_template/invoice', $this->data, true);
         $html .= $this->load->view('layout/footer', $this->data, true);
-
+        
         // 1. Display PDF in browser
         // $this->generate_pdf($html,"my_pdf_file.pdf");
 
         // 2. Generate PDF and store in file system, so it can be used to send as email attachment.
-        $file_name = FCPATH.'Generated PDF'. DIRECTORY_SEPARATOR . "rakesh.pdf";
+        $file_name = FCPATH.'Generated PDF'. DIRECTORY_SEPARATOR . "{$pending_payments[0]['user_name']}.pdf";
         $this->generate_pdf($html,$file_name,"F");
 
 
