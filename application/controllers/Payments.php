@@ -238,7 +238,9 @@ class Payments extends MY_Controller {
                         'status'=> ($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
                     ];
                     // print_r($institute);
-    
+                    if($transaction['user_type'] == 'Advance deposite') {
+                        $institute['payment_mode'] = 'Deposite';
+                    }
                     $this->db->insert("transactions", $institute);
                     if($transaction['user_type'] == "Advance deposite") {
                         $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
@@ -258,6 +260,9 @@ class Payments extends MY_Controller {
                             'date_created'=>date('Y-m-d H:i:s'),
                             'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
                         ];
+                        if($transaction['user_type'] == 'Advance deposite') {
+                            $demise['payment_mode'] = 'Deposite';
+                        }
                         $this->db->insert("transactions", $demise);
                         if($transaction['user_type'] == "Advance deposite") {
                             $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
@@ -276,7 +281,9 @@ class Payments extends MY_Controller {
                     'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
                 ];
                 
-                // print_r($administrative);
+                if($transaction['user_type'] == 'Advance deposite') {
+                    $administrative['payment_mode'] = 'Deposite';
+                }
                 $this->db->insert("transactions", $administrative);
                 if($transaction['user_type'] == "Advance deposite") {
                     $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
