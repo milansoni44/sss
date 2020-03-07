@@ -241,7 +241,7 @@ class Payments extends MY_Controller {
 
         $this->data['page_name'] = 'Recieve Payment';                
 
-        $this->data['members'] = $this->db->select("user_id, name")->get("user_master")->result_array();
+        $this->data['members'] = $this->db->select("user_id, name")->from("user_master")->where("user_type <> 'Admin'")->get()->result_array();
 
         $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
         $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
