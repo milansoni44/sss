@@ -34,6 +34,7 @@ class Payments extends MY_Controller {
                 $this->db->trans_start();
                 $this->db->insert_batch('transactions', $arrTransaction);
                 $this->db->trans_complete();
+
                 if($this->db->trans_status()) {
                     $this->session->set_flashdata("success", "Membership fee paid successfully.");
                 } else {
@@ -322,5 +323,78 @@ class Payments extends MY_Controller {
             }
         }
         die;
+    }
+
+    public function post_payment_individually() {
+
+        $this->data['user_id'] = null;
+        $this->data['pending_payments'] = null;
+
+        if( $this->input->server('REQUEST_METHOD') == 'POST') {
+            
+            $user_id = $this->input->post('member_id');
+            $this->data['user_id'] = $user_id;
+            
+            $action = $this->input->post('action');
+
+            $pending_payments = $this->db
+                                    ->query("SELECT
+                                        ledger.name as ledger_name,
+                                        user_master.name as user_name,
+                                        transactions.id,
+                                        transactions.demise_user_id,
+                                        transactions.ledger_id,
+                                        transactions.amount,
+                                        transactions.date_created
+                                    FROM transactions
+                                    LEFT JOIN ledger ON ledger.id = transactions.ledger_id
+                                    LEFT JOIN user_master ON user_master.user_id = transactions.demise_user_id
+                                    WHERE transactions.user_id = '{$user_id}'
+                                    AND transactions.status = 'UNPAID'")->result_array();
+            $this->data['pending_payments'] = $pending_payments;
+
+            if($action == 'Pay') {
+                
+                // echo "<pre>";print_r($pending_payments);die;
+                // $paid_amount = $this->input->post('paid_amount');
+                
+                $this->db->trans_start();
+                foreach($pending_payments as $pd) {
+                    if($pd['ledger_id']) {
+                        $this->db->query("Update ledger set `balance` = `balance` + {$pd['amount']} WHERE id = {$pd['ledger_id']}");
+                    } else {
+                        $this->db->query("Update user_master set `balance` = `balance` + {$pd['amount']} WHERE user_id = {$pd['demise_user_id']}");
+                    }
+
+                    $this->db->where("id",$pd['id'])->update("transactions",["status"=>"PAID"]);
+                }
+
+                $this->db->trans_complete();
+
+                if($this->db->trans_status() === TRUE) {
+                    $this->session->set_flashdata("success", "Payment Processed.");
+                } else {
+                    $this->session->set_flashdata("failure", "Payment not Processed.");
+                }
+                
+                redirect("payments/post_payment_individually");
+            }
+        }
+
+        $this->data['page_name'] = 'Recieve Payment';        
+        
+
+        $this->data['members'] = $this->db->select("user_id, name")->get("user_master")->result_array();
+
+        $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
+        $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
+
+        $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
+        $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
+
+        $this->load->view('layout/header', $this->data);
+        $this->load->view('payment/post_payment_individually', $this->data);
+        $this->load->view('layout/footer', $this->data);
+
     }
 }
