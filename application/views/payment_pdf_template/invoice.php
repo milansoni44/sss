@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <style>
+        body{
+            background-color: #fff!important;
+        }
         .logo{
             width:70px;
         }
@@ -78,7 +81,7 @@
                 </span>
             </td>
             <td class="vt tc muted primary">
-                PAYMENT INVOICE
+                INVOICE
             </td>
         </tr>
     </table>
@@ -96,12 +99,25 @@
                 </div>
             </td>
             <td class="vt" style="width:30%;">
+                <div class="primary muted">INVOICE DETAILS :</div>
+                <div class="seprator">&nbsp;</div>
+                <div class="secondary">
+                <?php echo "Date : ".date('Y-m-d')." <div class='mini-seprator'>&nbsp;</div>";?>
+                <?php echo "Invoice No. : 123456 <div class='mini-seprator'>&nbsp;</div>";?>
+                <?php echo "Financial Year. : 2015-16/ Q1 <div class='mini-seprator'>&nbsp;</div>";?>
             </td>
-            <td class="vt" style="width:30%;">
+            <td class="vt" style="width:30%;text-align:right;">
                 <div class="primary muted amount_td">Total Due Amount :<?php echo $payable_amount;?></div>
             </td>
         </tr>
     </table>
+
+    <hr/>
+    <div class="seprator">&nbsp;</div>
+    <div class="seprator">&nbsp;</div>
+    <div class="seprator">&nbsp;</div>
+
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex dignissimos natus, consequuntur dolore, consequatur voluptatem quo, laudantium est harum pariatur tenetur quam dolorum officia non eaque incidunt? Libero, maxime iure.</p>
 
     <div class="seprator">&nbsp;</div>
     <div class="seprator">&nbsp;</div>

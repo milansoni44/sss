@@ -518,8 +518,61 @@ class Payments extends MY_Controller {
         $html .= $this->load->view('payment_pdf_template/invoice', $this->data, true);
         $html .= $this->load->view('layout/footer', $this->data, true);
 
-        $mpdf = new \Mpdf\Mpdf();
+        // 1. Display PDF in browser
+        // $this->generate_pdf($html,"my_pdf_file.pdf");
+
+        // 2. Generate PDF and store in file system, so it can be used to send as email attachment.
+        $file_name = FCPATH.'Generated PDF'. DIRECTORY_SEPARATOR . "rakesh.pdf";
+        $this->generate_pdf($html,$file_name,"F");
+
+
+        // 3. Send PDF as email attachment
+        if(file_exists($file_name)){
+            $this->load->library('mymailer');
+            $attachment = array($file_name);
+            $email_response = $this->mymailer->send_email("Invoice","Please Find Attached Invoice",$member['email'],null,null,$attachment);
+            var_dump($email_response);
+            unlink($file_name);
+        }
+    }
+
+    protected function generate_pdf($html,$file_name=NULL,$mode='I'){
+
+        if($mode == 'F') {
+            $pathInfo = pathinfo($file_name);
+            if(isset($pathInfo['extension']) && $pathInfo['dirname']!='.'){
+
+                $dir_structure =dirname($file_name);
+                if (!file_exists($dir_structure)) {
+                    mkdir($dir_structure, 0777, true);
+                }
+            }
+        }
+
+        $modeArr = array(
+            'I'=>\Mpdf\Output\Destination::INLINE,
+            'D'=>\Mpdf\Output\Destination::DOWNLOAD,
+            'F'=>\Mpdf\Output\Destination::FILE,
+            'S'=>\Mpdf\Output\Destination::STRING_RETURN,
+        );
+
+        $mpdf = new \Mpdf\Mpdf(
+            array(
+                // 'mode' => 'utf-8',
+                // 'format' => array(210, 297),
+                // 'orientation' => 'P',
+                // 'setAutoTopMargin' => 'stretch',
+                // 'autoMarginPadding' => 0,
+                // 'bleedMargin' => 0,
+                // 'crossMarkMargin' => 0,
+                // 'cropMarkMargin' => 0,
+                // 'nonPrintMargin' => 0,
+                // 'margBuffer' => 0,
+                // 'collapseBlockMargins' => false,
+            )
+        );
+        $mpdf->SetDisplayMode('fullpage');
         $mpdf->WriteHTML($html);
-        $mpdf->Output();
+        $mpdf->Output($file_name,$modeArr[$mode]);
     }
 }
