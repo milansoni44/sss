@@ -3,11 +3,14 @@ ini_set('max_execution_time', 0); // 0 = Unlimited
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Cron extends CI_Controller {
-    public $debug = false;
+    
     public function __construct() {
         parent::__construct();
-        $this->data['module_name'] = "Payments";
-        $this->debug = true;
+        $this->load->config("global_path");
+        $this->load->helper("url");
+        $this->load->database();
+        $this->data['admin_base_url'] = $this->config->item("admin_base_url");
+        $this->data['admin_design_path'] = $this->config->item("admin_design_path");
     }
 
     public function generate_invoice() {
@@ -150,39 +153,31 @@ class Cron extends CI_Controller {
                                     LEFT JOIN user_master ON user_master.user_id = transactions.user_id
                                     WHERE transactions.user_id = '{$member['user_id']}'
                                     AND transactions.status = 'UNPAID'")->result_array();
-        // echo $this->db->last_query();die;
-        // echo "<pre>"; print_r($pending_payments);die;
+        
         $this->data['member'] = $member;
         $this->data['details'] = $pending_payments;
-        // echo "<pre>"; print_r($this->data['details']);die;
+        
         $this->data['payable_amount'] = ($pending_payments) ? array_sum(array_column($pending_payments,'amount')) : 0;
 
-        // $this->load->view('payment_pdf_template/invoice_header_only', $this->data);
-        // $this->load->view('payment_pdf_template/invoice', $this->data);
-        // $this->load->view('layout/footer', $this->data);
+        $this->db->trans_start();
+        $this->db->insert("periodic_email",[
+            'member_email'  =>  $member['email'],
+            'subject'       =>  'Invoice',
+            'body'          =>  'Please Find Attached Invoice',
+            'attempts'      =>  0,
+            'is_sent'       =>  'No',
+        ]);
 
-        
-        $html ="";
-        $html .= $this->load->view('payment_pdf_template/invoice_header_only', $this->data, true);
-        $html .= $this->load->view('payment_pdf_template/invoice', $this->data, true);
-        $html .= $this->load->view('layout/footer', $this->data, true);
-
-        // 1. Display PDF in browser
-        // $this->generate_pdf($html,"my_pdf_file.pdf");
-
-        // 2. Generate PDF and store in file system, so it can be used to send as email attachment.
-        $file_name = FCPATH.'Generated PDF'. DIRECTORY_SEPARATOR . "rakesh.pdf";
-        $this->generate_pdf($html,$file_name,"F");
-
-
-        // 3. Send PDF as email attachment
-        if(file_exists($file_name)){
-            $this->load->library('mymailer');
-            $attachment = array($file_name);
-            $email_response = $this->mymailer->send_email("Invoice","Please Find Attached Invoice",$member['email'],null,null,$attachment);
-            var_dump($email_response);
-            unlink($file_name);
+        if($insert_id = $this->db->insert_id()) {
+            $this->db->insert("periodic_email_attachments",[
+                'periodic_email_id'  =>  $insert_id,
+                'file_name'          =>  "Quarterly Invoice -" . strtotime(date('Y-m-d H:i:s')) . mt_rand(1,9) . mt_rand(1,9) . mt_rand(1,9),
+                'json_payload'       =>  json_encode($this->data),
+                'view_file_path'     =>  'payment_pdf_template/invoice',
+            ]);
         }
+
+        $this->db->trans_complete();
     }
 
     protected function generate_pdf($html,$file_name=NULL,$mode='I'){
@@ -265,6 +260,71 @@ class Cron extends CI_Controller {
             }
         }
         echo "Success";die;
+    }
+
+    // Function to sent emails periodically
+    public function periodically_email_send() {
+
+        $email_data = $this
+                        ->db
+                        ->where("is_sent","No")
+                        ->where("attempts <=",10)
+                        ->limit(2)
+                        ->order_by("created_at","ASC")
+                        ->get("periodic_email")
+                        ->result_array();
+
+        // echo "<pre>";print_r($email_data);die;
+
+        if($email_data) {
+
+            foreach($email_data as $email_row) {
+
+                $email_attachments = $this->db->where("periodic_email_id",$email_row['id'])->get("periodic_email_attachments")->result_array();
+
+                $attachments = [];
+                if($email_attachments) {
+                    foreach($email_attachments as $attach){
+                        
+                        $this->data = json_decode($attach['json_payload'],TRUE);
+                        
+                        $html ="";
+                        $html .= $this->load->view('payment_pdf_template/invoice_header_only', $this->data, true);
+                        $html .= $this->load->view($attach['view_file_path'], $this->data, true);
+                        $html .= $this->load->view('layout/footer', $this->data, true);
+
+                        // Generate PDF and store in file system, so it can be used to send as email attachment.
+                        $file_name = FCPATH.'Generated PDF'. DIRECTORY_SEPARATOR . $attach['file_name'];
+                        $this->generate_pdf($html,$file_name,"F");
+
+                        $attachments[] = $file_name;
+                    }
+                }
+                
+                // 3. Send PDF as email attachment
+                
+                $this->load->library('mymailer');
+                $email_response = $this->mymailer->send_email(
+                                                            $email_row['subject'],
+                                                            $email_row['body'],
+                                                            $email_row['member_email']
+                                                            ,null,null,
+                                                            $attachments);                
+
+                $data_for_update = [
+                    'attempts'  =>  $email_row['attempts'] +1,
+                    'is_sent'   =>  ($email_response['status']) ? 'Yes' : 'No',
+                ];
+
+                $this->db->where("id",$email_row['id'])->update("periodic_email", $data_for_update);
+                
+                foreach($attachments as $atached_file) {
+                    if(file_exists($atached_file)){
+                        unlink($atached_file);
+                    }                    
+                }
+            }
+        }
     }
 
 }

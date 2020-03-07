@@ -42,3 +42,29 @@ ALTER TABLE `transactions` DROP `created_at`;
 
 ALTER TABLE `user_master` ADD `balance` DECIMAL(14,2) NULL DEFAULT '0' AFTER `inactivity_date`;
 ALTER TABLE `transactions` ADD `type` ENUM('Debit','Credit') NOT NULL DEFAULT 'Debit' AFTER `status`;
+
+
+****************************************************************************
+|Changes dated: 07-03-2020| By Rakesh 2 new tables added for email cron job
+****************************************************************************
+
+CREATE TABLE `periodic_email_attachments` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `periodic_email_id` int(11) DEFAULT NULL,
+ `file_name` varchar(200) DEFAULT NULL,
+ `json_payload` text,
+ `view_file_path` varchar(200) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4
+
+CREATE TABLE `periodic_email` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `member_email` varchar(200) DEFAULT NULL,
+ `subject` varchar(300) DEFAULT NULL,
+ `body` mediumtext,
+ `attempts` tinyint(4) DEFAULT '0',
+ `is_sent` varchar(20) NOT NULL DEFAULT 'No' COMMENT 'Yes/No',
+ `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ `update_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4
