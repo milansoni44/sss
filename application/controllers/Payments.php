@@ -188,7 +188,8 @@ class Payments extends MY_Controller {
 
         $active_members = $this->db->query("SELECT
                                                 user_id,
-                                                user_type
+                                                user_type,
+                                                DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(insert_date, '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(insert_date, '00-%m-%d')) AS membership_years
                                             FROM user_master
                                             WHERE status = 'Active'
                                             AND user_type <> 'Admin'
@@ -248,19 +249,21 @@ class Payments extends MY_Controller {
 
                 // print_r($demiseArr);
                 foreach($txtArr as $txn) {
-                    
-                    $demise = [
-                        'user_id'=>$transaction['user_id'],
-                        'amount'=>100,
-                        'demise_user_id'=>$txn,
-                        'date_created'=>date('Y-m-d H:i:s'),
-                        'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
-                    ];
-                    $this->db->insert("transactions", $demise);
-                    if($transaction['user_type'] == "Advance deposite") {
-                        $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
-                        $this->db->where('user_id' , $transaction['user_id']);
-                        $this->db->update('user_master');
+                    // check user membership year > 25 years
+                    if($transaction['membership_years'] < 25) {
+                        $demise = [
+                            'user_id'=>$transaction['user_id'],
+                            'amount'=>100,
+                            'demise_user_id'=>$txn,
+                            'date_created'=>date('Y-m-d H:i:s'),
+                            'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
+                        ];
+                        $this->db->insert("transactions", $demise);
+                        if($transaction['user_type'] == "Advance deposite") {
+                            $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
+                            $this->db->where('user_id' , $transaction['user_id']);
+                            $this->db->update('user_master');
+                        }
                     }
                     // print_r($demise);
                 }
