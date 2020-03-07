@@ -85,7 +85,7 @@
                                                         
                                                     </div>
                                                     <div class="form-group">
-                                                        <div class="col-xs-12 col-sm-2 col-sm-offset-10 text-right">
+                                                        <div class="col-xs-12 col-sm-3 col-sm-offset-9 text-right">
                                                             <div class="clearfix">
                                                                 <input type="button" value="Search Pending Payments" class="btn btn-sm btn-success " name="action" style="height: 30px;padding-top: 3px;" id="search_member_btn"/>
                                                             </div>
@@ -130,60 +130,55 @@
 
     $(document).ready(function ()
     {
-        $("#mobile").on('keydown', function (e)
-        {
-            -1 !== $.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) || /65|67|86|88/.test(e.keyCode) && (!0 === e.ctrlKey || !0 === e.metaKey) || 35 <= e.keyCode && 40 >= e.keyCode || (e.shiftKey || 48 > e.keyCode || 57 < e.keyCode) && (96 > e.keyCode || 105 < e.keyCode) && e.preventDefault()
-        });
-    });
+        $("#search_member_btn").click(function(e){
 
-    $("#search_member_btn").click(function(e){
-
-        if($("#member_id").val()) {
-            $.ajax({
-                type: "POST", 
-                cache: false,
-                dataType: 'html',
-                url: '<?php echo $admin_post_payment_individually;?>',
-                data: { user_id : $("#member_id").val() },
-                success : function(data) {
-                    $("#container_div").append(data);
-                    $("#search_member_btn").closest(".form-group").hide(); 
-                },
-            });
-        } else {
-            $("#container_div").empty();
-        }
-    });
-    
-    $("#member_id").change(function(e){
-        $("#container_div").empty();
-        $("#search_member_btn").closest(".form-group").show(); 
-    }).trigger('change');
-
-    $(document).on("change","#all_checkbox", function(e){
-        $("#container_div .user_checkbox").prop("checked",$(this).is(':checked')).trigger('change');
-        /* var $that = $(this);
-        $("#container_div .user_checkbox").each(function(i,e){
-            $(e).prop("checked",$that.is(':checked')).trigger('change');
-        }); */
-    });
-
-    $(document).on("change",".user_checkbox", function(e){
-        $payable_amount = 0;
-        $("#container_div .user_checkbox").each(function(i,e){
-            if($(e).is(':checked')) {
-                $payable_amount += parseInt($(e).data('amount'));
+            if($("#member_id").val()) {
+                $.ajax({
+                    type: "POST", 
+                    cache: false,
+                    dataType: 'html',
+                    url: '<?php echo $admin_post_payment_individually;?>',
+                    data: { user_id : $("#member_id").val() },
+                    success : function(data) {
+                        $("#container_div").append(data);
+                        $("#search_member_btn").closest(".form-group").hide(); 
+                    },
+                });
+            } else {
+                $("#container_div").empty();
             }
         });
-
-        $("#total_td").text($payable_amount);
-    }).on("click","#pay_button", function(e){
-
-        if($("#container_div .user_checkbox:checked").length == 0) {
-            alert("Please select atleast one transection.");
-        } else {
-            $("#recieve_payment_form").trigger('submit');
-        }
         
+        $("#member_id").change(function(e){
+            $("#container_div").empty();
+            $("#search_member_btn").closest(".form-group").show(); 
+        }).trigger('change');
+
+        $(document).on("change","#all_checkbox", function(e){
+            $("#container_div .user_checkbox").prop("checked",$(this).is(':checked')).trigger('change');
+            /* var $that = $(this);
+            $("#container_div .user_checkbox").each(function(i,e){
+                $(e).prop("checked",$that.is(':checked')).trigger('change');
+            }); */
+        });
+
+        $(document).on("change",".user_checkbox", function(e){
+            $payable_amount = 0;
+            $("#container_div .user_checkbox").each(function(i,e){
+                if($(e).is(':checked')) {
+                    $payable_amount += parseInt($(e).data('amount'));
+                }
+            });
+
+            $("#total_td").text($payable_amount);
+        }).on("click","#pay_button", function(e){
+
+            if($("#container_div .user_checkbox:checked").length == 0) {
+                alert("Please select atleast one transection.");
+            } else {
+                $("#recieve_payment_form").trigger('submit');
+            }
+            
+        });
     });
 </script>

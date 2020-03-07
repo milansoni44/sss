@@ -1,5 +1,18 @@
 {
+<<<<<<< HEAD
     "require": {
         "phpoffice/phpspreadsheet": "^1.11"
+=======
+    "name": "rakesh/sss",
+    "authors": [
+        {
+            "name": "Rakesh Jangir",
+            "email": "rjtarpura@gmail.com"
+        }
+    ],
+    "require": {
+        "mpdf/mpdf": "^8.0",
+        "phpmailer/phpmailer": "^6.1"
+>>>>>>> origin/rakesh
     }
 }
