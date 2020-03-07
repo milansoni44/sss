@@ -493,7 +493,7 @@ class Payments extends MY_Controller {
             if(isset($_FILES['csv_file']) && $_FILES['csv_file']['error']==0) {
 
                 $csv_data = $this->readExcel($_FILES['csv_file']['tmp_name']);
-                echo "<pre>"; print_r($csv_data);die;
+                // echo "<pre>"; print_r($csv_data);die;
                 if(count($csv_data) > 1) {
                     $insertCount = 0;
                     $errors_main = [];
@@ -501,97 +501,63 @@ class Payments extends MY_Controller {
                         $errors = [];
                         if($k==1) continue; //Skip header row
     
-                        if(trim($arr['A']) != "" && trim($arr['H']) != "" && trim($arr['C']) != "" && trim($arr['L']) != "" && trim($arr['K']) != "" && trim($arr['I']) != "") {
-                            
-                            // mobile unique check
-                            $mobile = trim($arr['C']);
-    
-                            if(strlen($mobile) != 10) {
-                                $errors[] = "Line No: ".$k." with data Mobile <b style='text-decoration: underline;'>".$mobile."</b> must contain 10 characters in length.";
+                        if(trim($arr['A']) != "" && trim($arr['B']) != "" && trim($arr['C']) != "") {
+                            $user_id = trim($arr['A']);
+                            $amount = trim($arr['C']);
+                            $name = trim($arr['B']);
+                            $pending_payment = $this->db->query(
+                                "SELECT
+                                    t.*,
+                                    (
+                                        SELECT
+                                            SUM(amount)
+                                        FROM transactions
+                                        WHERE transactions.user_id = t.user_id
+                                        AND status = 'UNPAID'
+                                        AND type = 'Debit'
+                                    ) AS total_amount
+                                FROM transactions t
+                                WHERE user_id = '{$user_id}'
+                                AND status = 'UNPAID'
+                                AND type = 'Debit'
+                                "
+                            )->result_array();
+
+                            echo "<pre>";
+                            echo "Unpaid Invoices Amount :.".$pending_payment[0]['total_amount']."<br/>";
+                            print_r($pending_payment);
+                                    
+                            if($pending_payment[0]['total_amount'] > $amount) {
+                                $errors[] = "Line No: ".$k." with data {$name} : Amount <b style='text-decoration: underline;'>".$amount."</b> is not same as pending.";
                             }
-                            // check numeric
-                            if(!is_numeric($mobile)) {
-                                $errors[] = "Line No: ".$k." with data Mobile <b style='text-decoration: underline;'>".$mobile."</b> must contain only numbers.";
-                            }
-                            // check unique mobile
-                            // echo "<pre>"; var_dump($this->user->check_unique_mobile($mobile));
-                            if($this->model->check_mobile($mobile, NULL)) {
-                                $errors[] = "Line No: ".$k." with data Mobile <b style='text-decoration: underline;'>".$mobile."</b> is already exist in the system.";
-                            }
-    
-                            $states = $this->states_model->get_states_by_condition(array("name"=>$csv_data[$k]['H']));
-                            if(!$states['id']) {
-                                $errors[] = "Line No: ".$k." with data State <b style='text-decoration: underline;'>".$csv_data[$k]['H']."</b> is not exist in the system.";
-                            }
-                            $cities = $this->city_model->get_city_by_condition(array("name"=>$csv_data[$k]['I'], "state_id"=>$states['id']));
-                            if(!$cities['id']) {
-                                $errors[] = "Line No: ".$k." with data City <b style='text-decoration: underline;'>".$csv_data[$k]['I']."</b> is not exist in the system.";
-                            }
-                            $doctor_categories = $this->db->get_where("doctor_category",["name"=>trim($arr['K']),"is_deleted != "=>1])->row_array();
-                            if(!$doctor_categories['id']) {
-                                $errors[] = "Line No: ".$k." with data Category <b style='text-decoration: underline;'>".$csv_data[$k]['K']."</b> is not exist in the system.";
-                            }
-                            $pincode_id = $this->db->get_where("zip_codes",["zip_code"=>trim($arr['J']),"status"=>'Active'])->row_array()['id'];
-                            /*if(!$pincode_id) {
-                                $errors[] = "Line No: ".$k." with data Zipcode <b style='text-decoration: underline;'>".$csv_data[$k]['J']."</b> is not exist in the system.";
-                            }*/
-                            $headquarter_id = $this->db->get_where("headquarters",["name"=>trim($arr['L']),"is_deleted != "=>1, 'state_id'=>$states['id']])->row_array()['id'];
-                            if(!$headquarter_id) {
-                                $errors[] = "Line No: ".$k." with data Headquarter <b style='text-decoration: underline;'>".$csv_data[$k]['L']."</b> is not exist in the system or in <b style='text-decoration: underline;'>".$csv_data[$k]['H']."</b> state.";
-                            }
-    
-                            $userData = array(
-                                'email' => trim($arr['B']),
-                                'dob' => date('Y-m-d', strtotime(trim($arr['D']))),
-                                'doctor_categories' => [$doctor_categories['id']]
-                            );
-    
-                            $clientData =array(
-                                'name' => trim($arr['A']),
-                                'mobile' => trim($arr['C']),
-                                'address1' => trim($arr['E']),
-                                'address2' => trim($arr['F']),
-                                'address3' => trim($arr['G']),
-                                'status' => 'Active',
-                                'state_id' => $states['id'],
-                                'city_id' => $cities['id'],
-                                'pincode_id' => $pincode_id,
-                                'user_id' => USER_ID,
-                                'headquarter_id' => $headquarter_id,
-                                'imported_data' => json_encode($arr),
-                            );
-    
-                            $client_headquarters = array(
-                                'headquarter_id' => $headquarter_id,
-                            );
-                            
-                            /* echo "<pre>"; print_r($userData);
-                            print_r($clientData);
-                            print_r($client_headquarters);die; */
-    
+
+                            /*
                             if(empty($errors)) {
                                 $insertRes = $this->doctor_model->insert_update($userData,$clientData, $client_headquarters);
     
                                 if($insertRes != false){
                                     $insertCount ++;
                                 }
-                            }
+                            }*/
+                            echo "<pre>"; print_r($arr);
     
                         } else {
-                            $errors[] = "Line No: ".$k." Please provide name, mobile, state, city, category and headquarter.";
+                            $errors[] = "Line No: ".$k." Please provide user_id, name and amount.";
                         }
+                        print_r($errors);
                         $errors_main = array_merge($errors_main,$errors);
                     }
+                    die;
                     //$this->pre($errors_main);
-                    if($insertRes > 0 && !empty($errors_main)) {
+                    /*if($insertRes > 0 && !empty($errors_main)) {
                         $this->flash("message","{$insertCount} records imported successfully.");
                         $this->flash('error', $errors_main);
                     } else if( $insertRes == 0 &&  !empty($errors_main)) {
                         $this->flash('error', $errors_main);
                     } else {
                         $this->flash("message","{$insertCount} records imported successfully.");
-                    }
-                    redirect("doctors");
+                    }*/
+                    // redirect("doctors");
                 }else{
                     $this->flash("error","Empty file can't be processed.");
                     redirect("doctors");
