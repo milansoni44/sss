@@ -193,7 +193,7 @@
                                                         <div class="col-xs-12 col-sm-4">
                                                             <div class="clearfix">
                                                                 <input type="text" id="inactivity_date" name="inactivity_date" placeholder="Inactivity date"
-                                                                       class="col-xs-12 col-sm-12" required
+                                                                       class="col-xs-12 col-sm-12"
                                                                        value="<?php echo set_value('inactivity_date', html_entity_decode($user_info['inactivity_date'], ENT_QUOTES)); ?>"/>
                                                             </div>
                                                             <?php echo form_error('inactivity_date', '<div class="help-block">', '</div>'); ?>
