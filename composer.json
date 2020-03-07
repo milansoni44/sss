@@ -1,0 +1,12 @@
+{
+    "name": "rakesh/sss",
+    "authors": [
+        {
+            "name": "Rakesh Jangir",
+            "email": "rjtarpura@gmail.com"
+        }
+    ],
+    "require": {
+        "mpdf/mpdf": "^8.0"
+    }
+}

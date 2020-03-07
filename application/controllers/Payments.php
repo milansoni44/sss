@@ -484,4 +484,42 @@ class Payments extends MY_Controller {
         $this->load->view('layout/footer', $this->data);
 
     }
+
+    public function send_invoice_email() {
+
+        $member = $this->db->where("user_id",11)->get("user_master")->row_array();
+
+        $pending_payments = $this->db
+                                    ->query("SELECT
+                                        ledger.name as ledger_name,
+                                        user_master.name as user_name,
+                                        transactions.id,
+                                        transactions.demise_user_id,
+                                        transactions.ledger_id,
+                                        transactions.amount,
+                                        transactions.date_created
+                                    FROM transactions
+                                    LEFT JOIN ledger ON ledger.id = transactions.ledger_id
+                                    LEFT JOIN user_master ON user_master.user_id = transactions.demise_user_id
+                                    WHERE transactions.user_id = '{$member['user_id']}'
+                                    AND transactions.status = 'UNPAID'")->result_array();
+
+        $this->data['member'] = $member;        
+        $this->data['details'] = $pending_payments;        
+        $this->data['payable_amount'] = ($pending_payments) ? array_sum(array_column($pending_payments,'amount')) : 0;
+
+        // $this->load->view('payment_pdf_template/invoice_header_only', $this->data);
+        // $this->load->view('payment_pdf_template/invoice', $this->data);
+        // $this->load->view('layout/footer', $this->data);
+
+        
+        $html ="";
+        $html .= $this->load->view('payment_pdf_template/invoice_header_only', $this->data, true);
+        $html .= $this->load->view('payment_pdf_template/invoice', $this->data, true);
+        $html .= $this->load->view('layout/footer', $this->data, true);
+
+        $mpdf = new \Mpdf\Mpdf();
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+    }
 }
