@@ -223,12 +223,13 @@ class Payments extends MY_Controller {
                 $member['demises_ids'] = $demise_members['user_demises_ids'];
             }
         }
+        // echo "<pre>";
         // print_r($active_members);
         // die;
 
         if(!empty($active_members)) {
             foreach($active_members as $transaction) {
-
+                // if($transaction['user_id'] != 3) continue;
                 $txtArr = explode(',', $transaction['demises_ids']);
                 if(!empty($txtArr)) {
                     $institute = [
@@ -264,6 +265,7 @@ class Payments extends MY_Controller {
                         if($transaction['user_type'] == 'Advance deposite') {
                             $demise['payment_mode'] = 'Deposite';
                         }
+                        // print_r($demise);
                         $this->db->insert("transactions", $demise);
                         if($transaction['user_type'] == "Advance deposite") {
                             $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
@@ -285,6 +287,7 @@ class Payments extends MY_Controller {
                 if($transaction['user_type'] == 'Advance deposite') {
                     $administrative['payment_mode'] = 'Deposite';
                 }
+                // print_r($administrative);
                 $this->db->insert("transactions", $administrative);
                 if($transaction['user_type'] == "Advance deposite") {
                     $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
@@ -596,11 +599,17 @@ class Payments extends MY_Controller {
 
     public function send_invoice_email() {
 
-        $member = $this->db->where("user_id",11)->get("user_master")->row_array();
+        $member = $this->db->where("user_id",3)->get("user_master")->row_array();
 
         $pending_payments = $this->db
                                     ->query("SELECT
-                                        ledger.name as ledger_name,
+                                        (
+                                            CASE 
+                                                WHEN transactions.ledger_id IS NOT NULL THEN ledger.name
+                                                WHEN transactions.demise_user_id IS NOT NULL THEN ud.name
+                                                ELSE NULL
+                                            END
+                                        ) AS ledger_name,
                                         user_master.name as user_name,
                                         transactions.id,
                                         transactions.demise_user_id,
@@ -609,12 +618,15 @@ class Payments extends MY_Controller {
                                         transactions.date_created
                                     FROM transactions
                                     LEFT JOIN ledger ON ledger.id = transactions.ledger_id
-                                    LEFT JOIN user_master ON user_master.user_id = transactions.demise_user_id
+                                    LEFT JOIN user_master ud ON ud.user_id = transactions.demise_user_id
+                                    LEFT JOIN user_master ON user_master.user_id = transactions.user_id
                                     WHERE transactions.user_id = '{$member['user_id']}'
                                     AND transactions.status = 'UNPAID'")->result_array();
-
-        $this->data['member'] = $member;        
-        $this->data['details'] = $pending_payments;        
+        // echo $this->db->last_query();die;
+        // echo "<pre>"; print_r($pending_payments);die;
+        $this->data['member'] = $member;
+        $this->data['details'] = $pending_payments;
+        // echo "<pre>"; print_r($this->data['details']);die;
         $this->data['payable_amount'] = ($pending_payments) ? array_sum(array_column($pending_payments,'amount')) : 0;
 
         // $this->load->view('payment_pdf_template/invoice_header_only', $this->data);
