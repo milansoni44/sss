@@ -187,7 +187,8 @@ class Payments extends MY_Controller {
     public function generate_invoice() {
 
         $active_members = $this->db->query("SELECT
-                                                user_id
+                                                user_id,
+                                                user_type
                                             FROM user_master
                                             WHERE status = 'Active'
                                             AND user_type <> 'Admin'
@@ -195,7 +196,7 @@ class Payments extends MY_Controller {
                 
         // echo "<pre>"; 
         // echo "Total Active Members :".count($active_members)."<br/>";
-        // print_r($active_members);
+        // print_r($active_members);die;
 
         /*Get Total Inactive members of last 6 month*/
         $demise_members = $this->db->query("SELECT
@@ -207,9 +208,7 @@ class Payments extends MY_Controller {
                                             AND inactivity_date BETWEEN '2019-07-01' AND '2020-03-31'
                                             ")->row_array();
 
-        // echo "Total Demise Members :".$demise_members['total_demises']."<br/>";
         // print_r($demise_members);die;
-        // die;
 
         if(!empty($active_members)) {
             foreach($active_members as &$member) {
@@ -235,11 +234,16 @@ class Payments extends MY_Controller {
                         'amount'=>$transaction['institute_rate'],
                         'ledger_id'=>3,
                         'date_created'=>date('Y-m-d H:i:s'),
-                        'status'=>'UNPAID'
+                        'status'=> ($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
                     ];
                     // print_r($institute);
     
                     $this->db->insert("transactions", $institute);
+                    if($transaction['user_type'] == "Advance deposite") {
+                        $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
+                        $this->db->where('user_id' , $transaction['user_id']);
+                        $this->db->update('user_master');
+                    }
                 }
 
                 // print_r($demiseArr);
@@ -250,9 +254,14 @@ class Payments extends MY_Controller {
                         'amount'=>100,
                         'demise_user_id'=>$txn,
                         'date_created'=>date('Y-m-d H:i:s'),
-                        'status'=>'UNPAID'
+                        'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
                     ];
                     $this->db->insert("transactions", $demise);
+                    if($transaction['user_type'] == "Advance deposite") {
+                        $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
+                        $this->db->where('user_id' , $transaction['user_id']);
+                        $this->db->update('user_master');
+                    }
                     // print_r($demise);
                 }
 
@@ -261,25 +270,18 @@ class Payments extends MY_Controller {
                     'amount'=>90,
                     'ledger_id'=>1,
                     'date_created'=>date('Y-m-d H:i:s'),
-                    'status'=>'UNPAID'
+                    'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
                 ];
                 
                 // print_r($administrative);
                 $this->db->insert("transactions", $administrative);
+                if($transaction['user_type'] == "Advance deposite") {
+                    $this->db->set('balance', 'balance-'.$transaction['institute_rate'], false);
+                    $this->db->where('user_id' , $transaction['user_id']);
+                    $this->db->update('user_master');
+                }
             }
         }
-
-        /* $this->data['page_name'] = "Generate Invoice";
-        $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
-        $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
-
-        $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
-        $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
-
-        $this->load->view('layout/header', $this->data);
-        $this->load->view('payment/payment_list', $this->data);
-        $this->load->view('layout/footer', $this->data); */
-
         echo "Success";
     }
 
@@ -293,9 +295,9 @@ class Payments extends MY_Controller {
                         WHERE user_type = 'Advance Deposite'
                         AND status = 'Active'
                         ")->result_array();
-        echo "<pre>";
-        echo "Total Advance Deposite Members : ".count($interests)."<br/>";
-        print_r($interests);
+        // echo "<pre>";
+        // echo "Total Advance Deposite Members : ".count($interests)."<br/>";
+        // print_r($interests);
 
         if(!empty($interests)) {
             foreach($interests as $interest) {
@@ -322,7 +324,7 @@ class Payments extends MY_Controller {
                 $this->db->update('ledger');
             }
         }
-        die;
+        echo "Success";die;
     }
 
     public function post_payment_individually() {
