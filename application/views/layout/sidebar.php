@@ -123,6 +123,13 @@
                     </a>
                     <b class="arrow"></b>
                 </li>
+                <li id="import_payments_li">
+                    <a href="<?php echo $admin_import_payment; ?>">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Import Payment
+                    </a>
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
 

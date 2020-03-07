@@ -1,5 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
+require 'vendor/autoload.php';
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 //  Confirm Form Resubmission when back button pressed
 //header("Cache-Control: no cache");
 //session_cache_limiter("private_no_expire");
@@ -65,9 +68,18 @@ class MY_Controller extends CI_Controller
         $this->data['admin_transaction_link'] = $primary_url . 'index';
         $this->data['admin_pay_membership_fee_link'] = $primary_url . 'pay_membership_fee';
         $this->data['admin_post_payment_individually'] = $primary_url . 'post_payment_individually';
+        $this->data['admin_import_payment'] = $primary_url . 'import_payment';
 
         // ******************************** User Module * End ********************************
     }
+
+    public function readExcel( $file ){
+		$spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file);
+		// echo "<pre>"; print_r($spreadsheet);die;
+		// read excel data and store into an array
+		$xls_data = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+		return $xls_data;
+	}
 
 
 

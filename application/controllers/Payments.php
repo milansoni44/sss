@@ -484,4 +484,132 @@ class Payments extends MY_Controller {
         $this->load->view('layout/footer', $this->data);
 
     }
+
+    public function import_payment() {
+        if($this->input->server("REQUEST_METHOD") == "POST") {
+            // echo "<pre>"; print_r($_POST);
+            // print_r($_FILES);die;
+
+            if(isset($_FILES['csv_file']) && $_FILES['csv_file']['error']==0) {
+
+                $csv_data = $this->readExcel($_FILES['csv_file']['tmp_name']);
+                echo "<pre>"; print_r($csv_data);die;
+                if(count($csv_data) > 1) {
+                    $insertCount = 0;
+                    $errors_main = [];
+                    foreach($csv_data as $k=>$arr) {
+                        $errors = [];
+                        if($k==1) continue; //Skip header row
+    
+                        if(trim($arr['A']) != "" && trim($arr['H']) != "" && trim($arr['C']) != "" && trim($arr['L']) != "" && trim($arr['K']) != "" && trim($arr['I']) != "") {
+                            
+                            // mobile unique check
+                            $mobile = trim($arr['C']);
+    
+                            if(strlen($mobile) != 10) {
+                                $errors[] = "Line No: ".$k." with data Mobile <b style='text-decoration: underline;'>".$mobile."</b> must contain 10 characters in length.";
+                            }
+                            // check numeric
+                            if(!is_numeric($mobile)) {
+                                $errors[] = "Line No: ".$k." with data Mobile <b style='text-decoration: underline;'>".$mobile."</b> must contain only numbers.";
+                            }
+                            // check unique mobile
+                            // echo "<pre>"; var_dump($this->user->check_unique_mobile($mobile));
+                            if($this->model->check_mobile($mobile, NULL)) {
+                                $errors[] = "Line No: ".$k." with data Mobile <b style='text-decoration: underline;'>".$mobile."</b> is already exist in the system.";
+                            }
+    
+                            $states = $this->states_model->get_states_by_condition(array("name"=>$csv_data[$k]['H']));
+                            if(!$states['id']) {
+                                $errors[] = "Line No: ".$k." with data State <b style='text-decoration: underline;'>".$csv_data[$k]['H']."</b> is not exist in the system.";
+                            }
+                            $cities = $this->city_model->get_city_by_condition(array("name"=>$csv_data[$k]['I'], "state_id"=>$states['id']));
+                            if(!$cities['id']) {
+                                $errors[] = "Line No: ".$k." with data City <b style='text-decoration: underline;'>".$csv_data[$k]['I']."</b> is not exist in the system.";
+                            }
+                            $doctor_categories = $this->db->get_where("doctor_category",["name"=>trim($arr['K']),"is_deleted != "=>1])->row_array();
+                            if(!$doctor_categories['id']) {
+                                $errors[] = "Line No: ".$k." with data Category <b style='text-decoration: underline;'>".$csv_data[$k]['K']."</b> is not exist in the system.";
+                            }
+                            $pincode_id = $this->db->get_where("zip_codes",["zip_code"=>trim($arr['J']),"status"=>'Active'])->row_array()['id'];
+                            /*if(!$pincode_id) {
+                                $errors[] = "Line No: ".$k." with data Zipcode <b style='text-decoration: underline;'>".$csv_data[$k]['J']."</b> is not exist in the system.";
+                            }*/
+                            $headquarter_id = $this->db->get_where("headquarters",["name"=>trim($arr['L']),"is_deleted != "=>1, 'state_id'=>$states['id']])->row_array()['id'];
+                            if(!$headquarter_id) {
+                                $errors[] = "Line No: ".$k." with data Headquarter <b style='text-decoration: underline;'>".$csv_data[$k]['L']."</b> is not exist in the system or in <b style='text-decoration: underline;'>".$csv_data[$k]['H']."</b> state.";
+                            }
+    
+                            $userData = array(
+                                'email' => trim($arr['B']),
+                                'dob' => date('Y-m-d', strtotime(trim($arr['D']))),
+                                'doctor_categories' => [$doctor_categories['id']]
+                            );
+    
+                            $clientData =array(
+                                'name' => trim($arr['A']),
+                                'mobile' => trim($arr['C']),
+                                'address1' => trim($arr['E']),
+                                'address2' => trim($arr['F']),
+                                'address3' => trim($arr['G']),
+                                'status' => 'Active',
+                                'state_id' => $states['id'],
+                                'city_id' => $cities['id'],
+                                'pincode_id' => $pincode_id,
+                                'user_id' => USER_ID,
+                                'headquarter_id' => $headquarter_id,
+                                'imported_data' => json_encode($arr),
+                            );
+    
+                            $client_headquarters = array(
+                                'headquarter_id' => $headquarter_id,
+                            );
+                            
+                            /* echo "<pre>"; print_r($userData);
+                            print_r($clientData);
+                            print_r($client_headquarters);die; */
+    
+                            if(empty($errors)) {
+                                $insertRes = $this->doctor_model->insert_update($userData,$clientData, $client_headquarters);
+    
+                                if($insertRes != false){
+                                    $insertCount ++;
+                                }
+                            }
+    
+                        } else {
+                            $errors[] = "Line No: ".$k." Please provide name, mobile, state, city, category and headquarter.";
+                        }
+                        $errors_main = array_merge($errors_main,$errors);
+                    }
+                    //$this->pre($errors_main);
+                    if($insertRes > 0 && !empty($errors_main)) {
+                        $this->flash("message","{$insertCount} records imported successfully.");
+                        $this->flash('error', $errors_main);
+                    } else if( $insertRes == 0 &&  !empty($errors_main)) {
+                        $this->flash('error', $errors_main);
+                    } else {
+                        $this->flash("message","{$insertCount} records imported successfully.");
+                    }
+                    redirect("doctors");
+                }else{
+                    $this->flash("error","Empty file can't be processed.");
+                    redirect("doctors");
+                }
+            }else{
+                $this->flash("error","Please try again later.");
+                redirect("doctors");
+            }
+        }
+        $this->data['page_name'] = 'Import Payment';
+        $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
+        $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
+
+        $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
+        $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
+
+        $this->load->view('layout/header', $this->data);
+        $this->load->view('payment/import_payment', $this->data);
+        $this->load->view('layout/footer', $this->data);
+    }
 }
