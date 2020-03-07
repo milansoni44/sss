@@ -85,7 +85,7 @@
                                                         
                                                     </div>
                                                     <div class="form-group">
-                                                        <div class="col-xs-12 col-sm-2 col-sm-offset-10 text-right">
+                                                        <div class="col-xs-12 col-sm-3 col-sm-offset-9 text-right">
                                                             <div class="clearfix">
                                                                 <input type="button" value="Search Pending Payments" class="btn btn-sm btn-success " name="action" style="height: 30px;padding-top: 3px;" id="search_member_btn"/>
                                                             </div>
