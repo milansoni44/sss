@@ -225,4 +225,46 @@ class Cron extends CI_Controller {
         $mpdf->Output($file_name,$modeArr[$mode]);
     }
 
+    public function interest_paid() {
+        // 3 monthly
+        // pay interest 4% in user account
+
+        $interests = $this->db->query("SELECT
+                            user_master.*
+                        FROM user_master
+                        WHERE user_type = 'Advance deposite'
+                        AND status = 'Active'
+                        ")->result_array();
+        // echo "<pre>";
+        // echo "Total Advance Deposite Members : ".count($interests)."<br/>";
+        // print_r($interests);
+
+        if(!empty($interests)) {
+            foreach($interests as $interest) {
+                $int_paid_amount = (float)(($interest['balance']*4)/100);
+                // echo "User_id : {$interest['user_id']} Balance : ".$interest['balance']." Interest Amount : {$int_paid_amount}<br/>";
+                $this->db->query("UPDATE user_master SET balance = {$interest['balance']}+{$int_paid_amount}");
+
+                $transactions = [
+                    'user_id'=>$interest['user_id'],
+                    'amount'=>$int_paid_amount,
+                    'ledger_id'=>3,
+                    'date_created'=>date('Y-m-d H:i:s'),
+                    'date_paid'=>date('Y-m-d H:i:s'),
+                    'payment_mode'=>'AUTO',
+                    'status'=>'PAID',
+                    'type'=>'Credit'
+                ];
+
+                $this->db->insert('transactions', $transactions);
+
+                // update institute ledger account
+                $this->db->set('balance', 'balance-'.$int_paid_amount, false);
+                $this->db->where('id' , 3);
+                $this->db->update('ledger');
+            }
+        }
+        echo "Success";die;
+    }
+
 }
