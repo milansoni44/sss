@@ -67,7 +67,7 @@
                                         <th>Address</th>
                                         <th>Amount</th>
                                         <th>Date</th>
-                                        <th>Account</th>
+                                        <th>Demise/Ledger Account</th>
                                         <th>Status</th>
                                         </thead>
                                         <tbody>
@@ -109,6 +109,7 @@
 			"processing": true,
 			"serverSide": true,
 			"lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            "pageLength": 50,
 			"ajax":{
                 "url": "<?php echo base_url(); ?>payments/index",
                 "dataType": "json",
