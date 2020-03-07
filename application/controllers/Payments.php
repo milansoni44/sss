@@ -295,12 +295,15 @@ class Payments extends MY_Controller {
 
                             // echo "<pre>";
                             // echo "Unpaid Invoices Amount :.".$pending_payment[0]['total_amount']."<br/>";
-                            // print_r($pending_payment);
-                            if($pending_payment[0]['total_amount'] != $amount) {
-                                $errors[] = "Line No: ".$k." with data {$name} : Amount <b style='text-decoration: underline;'>".$amount."</b> is not same as pending.";
-                            }
+                            // echo $user_id."<pre>";
+                            // print_r($pending_payment);die;
 
-                            
+                            if(!$pending_payment) {
+                                $errors[] = "Line No: ".$k." with data {$name} : There is no pending amount for {$name}.";
+                            } elseif($pending_payment[0]['total_amount'] != $amount) {
+                                $errors[] = "Line No: ".$k." with data {$name} : Amount provided in excel sheet <b style='text-decoration: underline;'> ".$amount."</b> is not same as pending amount which is {$pending_payment[0]['total_amount']}.";
+                            }
+                                                        
                             if(empty($errors)) {
                                                                 
                                 if(!empty($pending_payment)) {
@@ -342,15 +345,17 @@ class Payments extends MY_Controller {
                     } else {
                         $this->session->set_flashdata("success","{$insertCount} records imported successfully.");
                     }
-                    redirect("payments", "location");
+                    
                 }else{
                     $this->session->set_flashdata("failure","Empty file can't be processed.");
-                    redirect("payments", "location");
+                    // redirect("payments", "location");
                 }//rakesh
             }else{
                 $this->session->set_flashdata("failure","Please try again later.");
-                redirect("payments", "location");
+                // redirect("payments", "location");
             }
+
+            redirect("payments/import_payment", "location");
         }
         $this->data['page_name'] = 'Import Payment';
         $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);

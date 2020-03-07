@@ -13,42 +13,6 @@
             <?php echo $breadcrumb; ?>
             
             <div class="page-content">
-
-            
-
-                <div class="row">
-                    <div class="col-xs-12">
-                    <?php if ($success = $this->session->flashdata("success")) { ?>
-                                    <div class="alert alert-block alert-success" id="alert_success" style="margin-top: 10px;">
-                                        <button type="button" class="close" data-dismiss="alert">
-                                            <i class="ace-icon fa fa-times"></i>
-                                        </button>
-                                        <p>
-                                            <strong>
-                                                <i class="ace-icon fa fa-check"></i>
-                                                Success!
-                                            </strong>
-                                            <?php echo $success; ?>.
-                                        </p>
-                                    </div>
-                                <?php } ?>
-
-                                <?php if ($failure = $this->session->flashdata("failure")) { ?>
-                                    <div class="alert alert-danger" id="alert_failure" style="margin-top: 10px;">
-                                        <button type="button" class="close" data-dismiss="alert">
-                                            <i class="ace-icon fa fa-times"></i>
-                                        </button>
-
-                                        <strong>
-                                            <i class="ace-icon fa fa-times"></i>
-                                            Failure!
-                                        </strong>
-                                        <?php echo $failure; ?>.
-                                        <br>
-                                    </div>
-                                <?php } ?>
-                    </div>
-                </div>
                 <div class="row">
                     <div class="col-xs-12">
                         <!-- PAGE CONTENT BEGINS -->
@@ -73,19 +37,42 @@
 
                                                         <div class="col-xs-12 col-sm-4">
                                                             <div class="clearfix">
-                                                                <!--<select class="col-xs-12 col-sm-12" id="member_id" name="member_id" required>
-                                                                    <option value=''>Select Member</option> 
-                                                                    <?php foreach($members as $member) {
-                                                                        $selected = ($member['user_id'] == $user_id) ? 'selected' : '';
-                                                                        echo "<option value='{$member['user_id']}'>{$member['name']}</option>";
-                                                                    }?>
-                                                                </select>-->
-                                                                <input type="file" name="csv_file" class="form-control" required />
+                                                                <input type="file" name="csv_file" class="form-control col-xs-12 col-sm-12" required />
                                                             </div>
                                                         </div>
-                                                        <input type="submit" name="Import" class="btn btn-sm btn-success " />
-                                                        
+                                                        <div class="col-xs-12 col-sm-4">
+                                                            <div class="clearfix">
+                                                                <input type="submit" name="Import" class="btn btn-sm btn-success" value="Import" />
+                                                            </div>
+                                                        </div>
                                                     </div>
+
+                                                    <?php
+                                                        $success = $this->session->flashdata("success");
+                                                        $success = ($success) ? $success : [];
+                                                        $failure = $this->session->flashdata("failure");
+                                                        $failure = ($failure) ? $failure : [];
+
+                                                        if($success || $failure):?>
+                                                        <div class="form-group">
+                                                            <label class="control-label col-xs-12 col-sm-2 no-padding-right"
+                                                                    for="name">Import Status:</label>
+
+                                                            <label class="control-label col-xs-12 col-sm-10" style="text-align:left;">
+                                                                <ol>
+                                                                    <?php 
+                                                                        foreach($success as $suc){
+                                                                            echo "<li class='text-success'>{$suc}</li>";
+                                                                        }
+                                                                        foreach($failure as $fail){
+                                                                            echo "<li class='text-danger'>{$fail}</li>";
+                                                                        }
+                                                                    ?>                                                                    
+                                                                </ol>
+                                                            </label>                                                        
+                                                        </div>
+                                                    <?php endif;?>
+                                                                                                        
                                                 </form>
                                             </div>
 
