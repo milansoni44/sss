@@ -119,7 +119,7 @@
                 <li id="individual_payments_li">
                     <a href="<?php echo $admin_post_payment_individually; ?>">
                         <i class="menu-icon fa fa-caret-right"></i>
-                        Payment Recieve
+                        Recieve Payment
                     </a>
                     <b class="arrow"></b>
                 </li>

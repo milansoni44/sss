@@ -64,99 +64,37 @@
 
                                         <div class="step-content pos-rel">
                                             <div class="step-pane active" data-step="1">
-
-                                            <?php if($user_id):?>
-                                                <form class="form-horizontal" id="add_user_form" method="post"
+                                                <form class="form-horizontal" id="recieve_payment_form" method="post"
                                                       action="<?php echo $admin_post_payment_individually; ?>">
-                                                      <input type="hidden" name="member_id" value="<?php echo $user_id;?>"/>
                                                     <div class="form-group">
-                                                        <label class="control-label col-xs-12 col-sm-2"
-                                                                for="name">Member: </label>
+                                                        <label class="control-label col-xs-12 col-sm-2 no-padding-right"
+                                                                for="name">Member: <span
+                                                                style="color:red;">*</span></label>
 
                                                         <div class="col-xs-12 col-sm-4">
                                                             <div class="clearfix">
-                                                                <?php foreach($members as $member) {
-                                                                    if($member['user_id'] == $user_id){
-                                                                        echo "<label class='control-label'>{$member['name']}</label>";
-                                                                    }                                                                
-                                                                }?>
+                                                                <select class="col-xs-12 col-sm-12" id="member_id" name="member_id" required>
+                                                                    <option value=''>Select Member</option> 
+                                                                    <?php foreach($members as $member) {
+                                                                        $selected = ($member['user_id'] == $user_id) ? 'selected' : '';
+                                                                        echo "<option value='{$member['user_id']}'>{$member['name']}</option>";
+                                                                    }?>
+                                                                </select>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <?php if($pending_payments):?>
-                                                        <?php $total = 0;?>
-                                                    <div class="form-group">
-                                                        <table id='dynamic_table' class="table table-striped table-bordered table-hover">
-                                                            <thead>
-                                                            <th>Account</th>
-                                                            <th>Date</th>
-                                                            <th>Amount</th>
-                                                            </thead>
-                                                            <tbody>                                                                
-                                                                <?php foreach($pending_payments as $pd){
-                                                                    $account_name = ($pd['ledger_name']) ? $pd['ledger_name'] : $pd['user_name'];
-                                                                    $date = date('Y-m-d',strtotime($pd['date_created']));
-                                                                    $total += $pd['amount'];
-                                                                    echo "<tr>
-                                                                                <td>{$account_name}</td>
-                                                                                <td>{$date}</td>
-                                                                                <td>{$pd['amount']}</td>
-                                                                            </tr>";
-                                                                }?>
-                                                                <tr><td></td><td class="text-right">TOTAL: </td><td><?php echo $total;?></td></tr>
-                                                            </tbody>
-                                                        </table>
+                                                        
                                                     </div>
                                                     <div class="form-group">
-                                                        <div class="col-xs-12 col-sm-4">
+                                                        <div class="col-xs-12 col-sm-2 col-sm-offset-10 text-right">
                                                             <div class="clearfix">
-                                                            <input type="hidden" name="paid_amount" value="<?php echo $total;?>" />
-                                                                <input type="submit" value="Pay" class="btn btn-sm btn-success" name="action"/>
+                                                                <input type="button" value="Search Pending Payments" class="btn btn-sm btn-success " name="action" style="height: 30px;padding-top: 3px;" id="search_member_btn"/>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <?php else:?>
-                                                        <p class="text-center">No Payments are pending</p>
-                                                    <?php endif;?>
 
+                                                    <div id="container_div"></div>
                                                     
                                                 </form>
-                                            <?php else:?>
-                                                <form class="form-horizontal" id="add_user_form" method="post"
-                                                      action="<?php echo $admin_post_payment_individually; ?>">
-                                                <div class="form-group">
-                                                    <label class="control-label col-xs-12 col-sm-2 no-padding-right"
-                                                            for="name">Member: <span
-                                                            style="color:red;">*</span></label>
-
-                                                    <div class="col-xs-12 col-sm-4">
-                                                        <div class="clearfix">
-                                                            <select class="col-xs-12 col-sm-12" id="member_id" name="member_id" required>
-                                                                <option value=''>Select Member</option> 
-                                                                <?php foreach($members as $member) {
-                                                                    $selected = ($member['user_id'] == $user_id) ? 'selected' : '';
-                                                                    echo "<option value='{$member['user_id']}'>{$member['name']}</option>";
-                                                                }?>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-xs-12 col-sm-4">
-                                                        <div class="clearfix">
-                                                            <input type="submit" value="Find" class="btn btn-sm btn-success" name="action"/>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                </form>
-
-                                            <?php endif;?>
-                                                    
-
-                                                        <!-- dd-->
-
-
-                                                    
-
-                                                    
                                             </div>
 
                                         </div>
@@ -196,5 +134,56 @@
         {
             -1 !== $.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) || /65|67|86|88/.test(e.keyCode) && (!0 === e.ctrlKey || !0 === e.metaKey) || 35 <= e.keyCode && 40 >= e.keyCode || (e.shiftKey || 48 > e.keyCode || 57 < e.keyCode) && (96 > e.keyCode || 105 < e.keyCode) && e.preventDefault()
         });
+    });
+
+    $("#search_member_btn").click(function(e){
+
+        if($("#member_id").val()) {
+            $.ajax({
+                type: "POST", 
+                cache: false,
+                dataType: 'html',
+                url: '<?php echo $admin_post_payment_individually;?>',
+                data: { user_id : $("#member_id").val() },
+                success : function(data) {
+                    $("#container_div").append(data);
+                    $("#search_member_btn").closest(".form-group").hide(); 
+                },
+            });
+        } else {
+            $("#container_div").empty();
+        }
+    });
+    
+    $("#member_id").change(function(e){
+        $("#container_div").empty();
+        $("#search_member_btn").closest(".form-group").show(); 
+    }).trigger('change');
+
+    $(document).on("change","#all_checkbox", function(e){
+        $("#container_div .user_checkbox").prop("checked",$(this).is(':checked')).trigger('change');
+        /* var $that = $(this);
+        $("#container_div .user_checkbox").each(function(i,e){
+            $(e).prop("checked",$that.is(':checked')).trigger('change');
+        }); */
+    });
+
+    $(document).on("change",".user_checkbox", function(e){
+        $payable_amount = 0;
+        $("#container_div .user_checkbox").each(function(i,e){
+            if($(e).is(':checked')) {
+                $payable_amount += parseInt($(e).data('amount'));
+            }
+        });
+
+        $("#total_td").text($payable_amount);
+    }).on("click","#pay_button", function(e){
+
+        if($("#container_div .user_checkbox:checked").length == 0) {
+            alert("Please select atleast one transection.");
+        } else {
+            $("#recieve_payment_form").trigger('submit');
+        }
+        
     });
 </script>

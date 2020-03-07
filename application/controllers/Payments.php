@@ -327,15 +327,9 @@ class Payments extends MY_Controller {
 
     public function post_payment_individually() {
 
-        $this->data['user_id'] = null;
-        $this->data['pending_payments'] = null;
-
-        if( $this->input->server('REQUEST_METHOD') == 'POST') {
+        if ($this->input->is_ajax_request()) {
             
-            $user_id = $this->input->post('member_id');
-            $this->data['user_id'] = $user_id;
-            
-            $action = $this->input->post('action');
+            $user_id = $this->input->post('user_id');
 
             $pending_payments = $this->db
                                     ->query("SELECT
@@ -351,38 +345,118 @@ class Payments extends MY_Controller {
                                     LEFT JOIN user_master ON user_master.user_id = transactions.demise_user_id
                                     WHERE transactions.user_id = '{$user_id}'
                                     AND transactions.status = 'UNPAID'")->result_array();
-            $this->data['pending_payments'] = $pending_payments;
 
-            if($action == 'Pay') {
-                
-                // echo "<pre>";print_r($pending_payments);die;
-                // $paid_amount = $this->input->post('paid_amount');
-                
-                $this->db->trans_start();
-                foreach($pending_payments as $pd) {
+            $response_row = "";
+            if($pending_payments) {
+
+                $total = 0;
+                foreach($pending_payments as $pd){
+                    $account_name = ($pd['ledger_name']) ? $pd['ledger_name'] : $pd['user_name'];
+                    $date = date('Y-m-d',strtotime($pd['date_created']));
+                    $total += $pd['amount'];
+
+                    $response_row .=  "<tr>
+                                            <td>
+                                                <input type='checkbox' 
+                                                        name='transection_ids[]' 
+                                                        value='{$pd['id']}' 
+                                                        class='user_checkbox'
+                                                        data-amount='{$pd['amount']}'
+                                                        checked 
+                                                />
+                                            </td>
+                                            <td>{$account_name}</td>
+                                            <td>{$date}</td>
+                                            <td>{$pd['amount']}</td>
+                                        </tr>";
+                }
+
+                $response_html = "<div class='form-group'>
+                                    <table id='dynamic_table' class='table table-striped table-bordered table-hover'>
+                                        <thead>
+                                        <th><input type='checkbox' id='all_checkbox' checked/></th>
+                                        <th>Account</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        </thead>
+                                        <tbody>
+                                            {$response_row}
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td class='text-right'>TOTAL RECIEVABLE AMOUNT: </td>
+                                                <td>{$total}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class='form-group'>
+                                    <div class='col-xs-12 col-sm-2'>
+                                        <div class='clearfix'>
+                                            <label style='font-weight: 600;font-size: 110%;'> Amount Recieving: <span id='total_td'>{$total}</span></label>
+                                        </div>
+                                    </div>
+                                    <div class='col-xs-12 col-sm-2 col-sm-offset-8 text-right'>
+                                        <div class='clearfix'>
+                                            <input type='button' id='pay_button' value='Recieve' class='btn btn-sm btn-success' style='height: 30px;padding-top: 3px;'/>
+                                        </div>
+                                    </div>
+                                </div>";
+            } else {
+                $response_html = "<p class='text-center'>No Payments are pending</p>";
+            }
+            echo $response_html;die;
+        }
+
+        if( $this->input->server('REQUEST_METHOD') == 'POST') {
+            
+            // echo "<pre>";print_r($_POST);die;
+
+            $user_id = $this->input->post('member_id');
+            $transection_ids = $this->input->post('transection_ids');
+
+            $pending_payments = $this->db
+                                    ->query("SELECT
+                                        ledger.name as ledger_name,
+                                        user_master.name as user_name,
+                                        transactions.id,
+                                        transactions.demise_user_id,
+                                        transactions.ledger_id,
+                                        transactions.amount,
+                                        transactions.date_created
+                                    FROM transactions
+                                    LEFT JOIN ledger ON ledger.id = transactions.ledger_id
+                                    LEFT JOIN user_master ON user_master.user_id = transactions.demise_user_id
+                                    WHERE transactions.user_id = '{$user_id}'
+                                    AND transactions.status = 'UNPAID'")->result_array();
+                            
+            $this->db->trans_start();
+
+            foreach($transection_ids as $t_id) {
+
+                if($pd = $this->db->where("id",$t_id)->get("transactions")->row_array()) {  //transection_details
+                    
                     if($pd['ledger_id']) {
                         $this->db->query("Update ledger set `balance` = `balance` + {$pd['amount']} WHERE id = {$pd['ledger_id']}");
                     } else {
                         $this->db->query("Update user_master set `balance` = `balance` + {$pd['amount']} WHERE user_id = {$pd['demise_user_id']}");
                     }
 
-                    $this->db->where("id",$pd['id'])->update("transactions",["status"=>"PAID"]);
+                    $this->db->where("id",$pd['id'])->update("transactions",["status"=>"PAID","payment_mode"=>"CHEQUE"]);
                 }
-
-                $this->db->trans_complete();
-
-                if($this->db->trans_status() === TRUE) {
-                    $this->session->set_flashdata("success", "Payment Processed.");
-                } else {
-                    $this->session->set_flashdata("failure", "Payment not Processed.");
-                }
-                
-                redirect("payments/post_payment_individually");
             }
+
+            $this->db->trans_complete();
+
+            if($this->db->trans_status() === TRUE) {
+                $this->session->set_flashdata("success", "Payment Processed.");
+            } else {
+                $this->session->set_flashdata("failure", "Payment not Processed.");
+            }
+            
+            redirect("payments/post_payment_individually");
         }
 
-        $this->data['page_name'] = 'Recieve Payment';        
-        
+        $this->data['page_name'] = 'Recieve Payment';                
 
         $this->data['members'] = $this->db->select("user_id, name")->get("user_master")->result_array();
 
