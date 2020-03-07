@@ -303,7 +303,7 @@ class Payments extends MY_Controller {
         $interests = $this->db->query("SELECT
                             user_master.*
                         FROM user_master
-                        WHERE user_type = 'Advance Deposite'
+                        WHERE user_type = 'Advance deposite'
                         AND status = 'Active'
                         ")->result_array();
         // echo "<pre>";
@@ -313,7 +313,7 @@ class Payments extends MY_Controller {
         if(!empty($interests)) {
             foreach($interests as $interest) {
                 $int_paid_amount = (float)(($interest['balance']*4)/100);
-                echo "User_id : {$interest['user_id']} Balance : ".$interest['balance']." Interest Amount : {$int_paid_amount}<br/>";
+                // echo "User_id : {$interest['user_id']} Balance : ".$interest['balance']." Interest Amount : {$int_paid_amount}<br/>";
                 $this->db->query("UPDATE user_master SET balance = {$interest['balance']}+{$int_paid_amount}");
 
                 $transactions = [
@@ -484,7 +484,7 @@ class Payments extends MY_Controller {
         $this->load->view('layout/footer', $this->data);
 
     }
-    
+
     public function import_payment() {
         if($this->input->server("REQUEST_METHOD") == "POST") {
             // echo "<pre>"; print_r($_POST);
@@ -523,48 +523,63 @@ class Payments extends MY_Controller {
                                 "
                             )->result_array();
 
-                            echo "<pre>";
-                            echo "Unpaid Invoices Amount :.".$pending_payment[0]['total_amount']."<br/>";
-                            print_r($pending_payment);
-                                    
+                            // echo "<pre>";
+                            // echo "Unpaid Invoices Amount :.".$pending_payment[0]['total_amount']."<br/>";
+                            // print_r($pending_payment);
                             if($pending_payment[0]['total_amount'] > $amount) {
                                 $errors[] = "Line No: ".$k." with data {$name} : Amount <b style='text-decoration: underline;'>".$amount."</b> is not same as pending.";
                             }
 
-                            /*
+                            
                             if(empty($errors)) {
-                                $insertRes = $this->doctor_model->insert_update($userData,$clientData, $client_headquarters);
-    
-                                if($insertRes != false){
-                                    $insertCount ++;
+                                                                
+                                if(!empty($pending_payment)) {
+                                    foreach($pending_payment as $pay) {
+                                        // transaction status update
+                                        $this->db->update("transactions", ["status"=>"PAID"], ["id"=>$pay['id']]);
+
+                                        // member account update
+                                        if(isset($pay['demise_user_id'])) {
+                                            $this->db->set('balance', 'balance+'.$pay['amount'], false);
+                                            $this->db->where('user_id' , $pay['demise_user_id']);
+                                            $this->db->update('user_master');
+                                        }
+
+                                        // ledger account update
+                                        if(isset($pay['ledger_id'])) {
+                                            $this->db->set('balance', 'balance+'.$pay['amount'], false);
+                                            $this->db->where('id' , $pay['ledger_id']);
+                                            $this->db->update('ledger');
+                                        }
+                                    }
                                 }
-                            }*/
-                            echo "<pre>"; print_r($arr);
+                                $insertCount ++;
+                            }
+                            // echo "<pre>"; print_r($arr);
     
                         } else {
                             $errors[] = "Line No: ".$k." Please provide user_id, name and amount.";
                         }
-                        print_r($errors);
+                        // print_r($errors);
                         $errors_main = array_merge($errors_main,$errors);
                     }
-                    die;
                     //$this->pre($errors_main);
-                    /*if($insertRes > 0 && !empty($errors_main)) {
-                        $this->flash("message","{$insertCount} records imported successfully.");
-                        $this->flash('error', $errors_main);
+                    if($insertRes > 0 && !empty($errors_main)) {
+                        $this->session->set_flashdata("success","{$insertCount} records imported successfully.");
+                        $this->session->set_flashdata('failure', $errors_main);
                     } else if( $insertRes == 0 &&  !empty($errors_main)) {
-                        $this->flash('error', $errors_main);
+                        $this->session->set_flashdata('failure', $errors_main);
                     } else {
-                        $this->flash("message","{$insertCount} records imported successfully.");
-                    }*/
-                    // redirect("doctors");
+                        $this->session->set_flashdata("success","{$insertCount} records imported successfully.");
+                    }
+                    redirect("payments", "location");
                 }else{
-                    $this->flash("error","Empty file can't be processed.");
-                    redirect("doctors");
+                    $this->session->set_flashdata("failure","Empty file can't be processed.");
+                    redirect("payments", "location");
                 }
             }else{
-                $this->flash("error","Please try again later.");
-                redirect("doctors");
+                $this->session->set_flashdata("failure","Please try again later.");
+                redirect("payments", "location");
             }
         }
         $this->data['page_name'] = 'Import Payment';

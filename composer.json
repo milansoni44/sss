@@ -1,7 +1,14 @@
 {
+    "name": "rakesh/sss",
+    "authors": [
+        {
+            "name": "Rakesh Jangir",
+            "email": "rjtarpura@gmail.com"
+        }
+    ],
     "require": {
-        "phpoffice/phpspreadsheet": "^1.11",
         "mpdf/mpdf": "^8.0",
-        "phpmailer/phpmailer": "^6.1"
+        "phpmailer/phpmailer": "^6.1",
+        "phpoffice/phpspreadsheet": "^1.11"
     }
 }
