@@ -169,9 +169,11 @@
     $("#member_type, #status").change(function(e){
         
         var member_type_s = $("#member_type").val() || "";
+        member_type_s = (member_type_s) ? '^' + member_type_s +'$' : "";
         var status_s = $("#status").val() || "";
+        status_s = (status_s) ? '^' + status_s +'$' : "";
 
-        d_table.api().column(2).search(member_type_s,false,false,false).column(6).search(status_s,false,false).draw();
+        d_table.api().column(2).search(member_type_s,true).column(6).search(status_s,true).draw();
     });
 
 </script>
