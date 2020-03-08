@@ -35,7 +35,7 @@ class Cron extends CI_Controller {
                                             FROM user_master
                                             WHERE status = 'Deactive'
                                             AND user_type <> 'Admin'
-                                            AND inactivity_date BETWEEN '2019-07-01' AND '2020-03-31'
+                                            AND demise_date BETWEEN '2019-07-01' AND '2020-03-31'
                                             ")->row_array();
 
         // print_r($demise_members);die;

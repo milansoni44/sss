@@ -16,12 +16,16 @@ class User_model extends MY_Model
         $data['update_date'] = date('Y-m-d H:i:s');
 		if( $user_id )
 		{
+            $data['demise_date'] = $data['inactivity_date'];
+            unset($data['inactivity_date']);
 			$result = $this->db->update('user_master', $data, array( 'user_id' => $user_id ) );
 			return $result ? $user_id : FALSE;
 		}
 		else
 		{
             $data['status'] = 'Active';
+            $data['demise_date'] = $data['inactivity_date'];
+            unset($data['inactivity_date']);
             $data['insert_date'] = date('Y-m-d H:i:s');
 
 			$result = $this->db->insert('user_master', $data );

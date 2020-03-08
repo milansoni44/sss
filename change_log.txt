@@ -55,7 +55,7 @@ CREATE TABLE `periodic_email_attachments` (
  `json_payload` text,
  `view_file_path` varchar(200) DEFAULT NULL,
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `periodic_email` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -67,4 +67,9 @@ CREATE TABLE `periodic_email` (
  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
  `update_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+****************************************************************************
+|Changes dated: 08-03-2020| By Milan Soni
+****************************************************************************
+ALTER TABLE `user_master` CHANGE `inactivity_date` `demise_date` DATE NULL DEFAULT NULL;
