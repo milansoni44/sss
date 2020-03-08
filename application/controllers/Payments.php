@@ -78,6 +78,15 @@ class Payments extends MY_Controller {
                 $orderBy .= implode(",",$temp);
             }
 
+
+            if($member_id = $request['member']) {
+                $where .= " AND transactions.user_id = {$member_id}";
+            }
+            if($date_range = $request['date_range']) {                
+                $date_arr = explode(" - ",$date_range); // 2020-03-09 - 2020-03-09
+                $where .= " AND (DATE(transactions.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
+            }
+// echo $sql.$where;die;
             $c = $this->db->query($sql.$where.$orderBy);
             $records_filtered = $this->db->affected_rows();
             $limit = "";
@@ -88,14 +97,19 @@ class Payments extends MY_Controller {
             $rs = $this->db->query($sql.$where.$orderBy.$limit);
             $data =  $rs->result_array();
 
+            $badge_data = $this->db->select("name,balance")->get("ledger")->result_array();
             $json_data = array(
                 "draw"            => intval( $request['draw'] ),
+                "badge_data"      => $badge_data,
                 "recordsTotal"    => intval( $records_total ),
                 "recordsFiltered" => intval( $records_filtered ),
                 "data"            => $data
             );
             echo json_encode($json_data);die;
         }
+
+        $this->data['members'] = $this->db->select("user_id, name")->from("user_master")->where("user_type <> 'Admin'")->get()->result_array();
+
         $this->data['page_name'] = "Payments";
 		$this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
         $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);

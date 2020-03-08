@@ -13,19 +13,19 @@
                         <form class="form-horizontal well well-sm">
                             <div class="form-group" style="margin-bottom: 0px;">
                                 <label 
-                                    class="control-label col-xs-12 col-sm-2 col-sm-offset-4 text-muted" 
+                                    class="control-label col-xs-12 col-sm-2 col-sm-offset-5 text-muted" 
                                     style="font-weight: 600;letter-spacing: 1px;padding-top: 3px;">Filters</label>
                                 <div class="col-xs-12 col-sm-3">
                                     <div class="clearfix">
                                         <select id="member_type" class="col-xs-12 col-sm-12">
-                                            <option value=''>All Members</option>
+                                            <option value=''>All Members Types</option>
                                             <option value='Advance deposite'>Advance Deposite</option>
                                             <option value='Cheque'>Cheque</option>
                                             <option value='ECS'>ECS Members</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-xs-12 col-sm-3">
+                                <div class="col-xs-12 col-sm-2">
                                     <div class="clearfix">
                                         <select id="status" class="col-xs-12 col-sm-12">
                                             <option value=''>All Status</option>
@@ -162,7 +162,7 @@
         .parent().addClass("active open");
 
     var $dynamic_table = $('#dynamic_table');
-    window.d_table = $dynamic_table.dataTable({
+    d_table = $dynamic_table.dataTable({
         "pageLength": 25
     });
 
