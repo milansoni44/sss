@@ -140,7 +140,8 @@ class User extends MY_Controller {
             }
             if($this->input->server("REQUEST_METHOD") == "POST") {
                 // echo "<pre>"; print_r($_POST);die;
-
+                $userInfo = $this->db->query("SELECT * FROM user_master WHERE user_id = '{$user_id}'")->row_array();
+                // echo "<pre>"; print_r($userInfo);die;
                 $nominee_1 = trim($this->input->post("nominee1"));
                 $nominee_2 = trim($this->input->post("nominee2"));
 
@@ -152,7 +153,11 @@ class User extends MY_Controller {
                 $result2 = $this->db->query("SELECT nominee2 FROM user_master WHERE nominee2 = '{$nominee_2}' AND user_id = '{$user_id}'")->row_array();
                 $result3 = $this->db->query("SELECT nominee1_reimbursement FROM user_master WHERE nominee1_reimbursement = '{$nominee1_reimbursement}' AND user_id = '{$user_id}'")->row_array();
                 $result4 = $this->db->query("SELECT nominee2_reimbursement FROM user_master WHERE nominee2_reimbursement = '{$nominee2_reimbursement}' AND user_id = '{$user_id}'")->row_array();
-
+                echo "<pre>";
+                var_dump($result1);
+                var_dump($result2);
+                var_dump($result3);
+                var_dump($result4);
                 $user_data = [
                     "nominee1"=>$nominee_1,
                     "nominee2"=>$nominee_2,
@@ -166,12 +171,25 @@ class User extends MY_Controller {
                     // transaction will be updated with 50 RS charge
                     $dataTransaction = [
                         "user_id"=>$user_id,
-                        "membership_fee_paid"=>50,
-                        "balance_due"=>0,
-                        "created_at"=>date('Y-m-d H:i:s'),
-                        "fee_flag"=>"NOMINEE_FEE",
+                        "amount"=>50,
+                        "ledger_id"=>3,
+                        "date_created"=>date('Y-m-d H:i:s'),
+                        "type"=>"Debit",
+                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID"
                     ];
+                    // echo "<pre>"; print_r($dataTransaction);die;
                     $this->db->insert("transactions", $dataTransaction);
+                    if($userInfo['user_type'] == 'Advance deposite') {
+                        // ledger balance update
+                        $this->db->set('balance', 'balance+50', false);
+                        $this->db->where('id' , 3);
+                        $this->db->update('ledger');
+
+                        // user balance update
+                        $this->db->set('balance', 'balance-50', false);
+                        $this->db->where('user_id' , $user_id);
+                        $this->db->update('user_master');
+                    }
                     $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
                 }
 
@@ -180,12 +198,25 @@ class User extends MY_Controller {
                     // transaction will be updated with 50 RS charge
                     $dataTransaction = [
                         "user_id"=>$user_id,
-                        "membership_fee_paid"=>50,
-                        "balance_due"=>0,
-                        "created_at"=>date('Y-m-d H:i:s'),
-                        "fee_flag"=>"NOMINEE_FEE",
+                        "amount"=>50,
+                        "ledger_id"=>3,
+                        "date_created"=>date('Y-m-d H:i:s'),
+                        "type"=>"Debit",
+                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
+                        "payment_mode"=>($userInfo['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
                     ];
                     $this->db->insert("transactions", $dataTransaction);
+                    if($userInfo['user_type'] == 'Advance deposite') {
+                        // ledger balance update
+                        $this->db->set('balance', 'balance+50', false);
+                        $this->db->where('id' , 3);
+                        $this->db->update('ledger');
+
+                        // user balance update
+                        $this->db->set('balance', 'balance-50', false);
+                        $this->db->where('user_id' , $user_id);
+                        $this->db->update('user_master');
+                    }
                     $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
                 }
 
@@ -194,12 +225,25 @@ class User extends MY_Controller {
                     // transaction will be updated with 50 RS charge
                     $dataTransaction = [
                         "user_id"=>$user_id,
-                        "membership_fee_paid"=>50,
-                        "balance_due"=>0,
-                        "created_at"=>date('Y-m-d H:i:s'),
-                        "fee_flag"=>"NOMINEE_FEE",
+                        "amount"=>50,
+                        "ledger_id"=>3,
+                        "date_created"=>date('Y-m-d H:i:s'),
+                        "type"=>"Debit",
+                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
+                        "payment_mode"=>($userInfo['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
                     ];
                     $this->db->insert("transactions", $dataTransaction);
+                    if($userInfo['user_type'] == 'Advance deposite') {
+                        // ledger balance update
+                        $this->db->set('balance', 'balance+50', false);
+                        $this->db->where('id' , 3);
+                        $this->db->update('ledger');
+
+                        // user balance update
+                        $this->db->set('balance', 'balance-50', false);
+                        $this->db->where('user_id' , $user_id);
+                        $this->db->update('user_master');
+                    }
                     $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
                 }
 
@@ -208,21 +252,32 @@ class User extends MY_Controller {
                     // transaction will be updated with 50 RS charge
                     $dataTransaction = [
                         "user_id"=>$user_id,
-                        "membership_fee_paid"=>50,
-                        "balance_due"=>0,
-                        "created_at"=>date('Y-m-d H:i:s'),
-                        "fee_flag"=>"NOMINEE_FEE",
+                        "amount"=>50,
+                        "ledger_id"=>3,
+                        "date_created"=>date('Y-m-d H:i:s'),
+                        "type"=>"Debit",
+                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
+                        "payment_mode"=>($userInfo['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
                     ];
                     $this->db->insert("transactions", $dataTransaction);
+                    if($userInfo['user_type'] == 'Advance deposite') {
+                        // ledger balance update
+                        $this->db->set('balance', 'balance+50', false);
+                        $this->db->where('id' , 3);
+                        $this->db->update('ledger');
+
+                        // user balance update
+                        $this->db->set('balance', 'balance-50', false);
+                        $this->db->where('user_id' , $user_id);
+                        $this->db->update('user_master');
+                    }
                     $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
                 }
 
                 if($result4 && $result3 && $result2 && $result1) {
-
                     $this->session->set_flashdata("success", "Member's nominee is not changed yet.");
                 }
                 redirect($this->data['admin_user_list_link'], 'location');
-
             }
 
             $this->data['user_info'] = $user_info;
@@ -236,8 +291,6 @@ class User extends MY_Controller {
             $this->load->view('layout/header', $this->data);
             $this->load->view('user/nominee', $this->data);
             $this->load->view('layout/footer', $this->data);
-
-
         } else {
             show_404();
         }

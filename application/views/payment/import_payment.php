@@ -43,6 +43,7 @@
                                                         <div class="col-xs-12 col-sm-4">
                                                             <div class="clearfix">
                                                                 <input type="submit" name="Import" class="btn btn-sm btn-success" value="Import" />
+                                                                <a href="<?php echo base_url(); ?>assets/import_payment.xlsx" download>Download Sample</a>
                                                             </div>
                                                         </div>
                                                     </div>

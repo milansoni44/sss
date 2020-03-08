@@ -224,7 +224,7 @@ class Payments extends MY_Controller {
                         $this->db->query("Update user_master set `balance` = `balance` + {$pd['amount']} WHERE user_id = {$pd['demise_user_id']}");
                     }
 
-                    $this->db->where("id",$pd['id'])->update("transactions",["status"=>"PAID","payment_mode"=>"CHEQUE"]);
+                    $this->db->where("id",$pd['id'])->update("transactions",["status"=>"PAID","payment_mode"=>"CHEQUE","date_paid"=>date("Y-m-d H:i:s")]);
                 }
             }
 
@@ -309,7 +309,7 @@ class Payments extends MY_Controller {
                                 if(!empty($pending_payment)) {
                                     foreach($pending_payment as $pay) {
                                         // transaction status update
-                                        $this->db->update("transactions", ["status"=>"PAID"], ["id"=>$pay['id']]);
+                                        $this->db->update("transactions", ["status"=>"PAID","date_paid"=>date("Y-m-d H:i:s"),"payment_mode"=>"ECS"], ["id"=>$pay['id']]);
 
                                         // member account update
                                         if(isset($pay['demise_user_id'])) {
