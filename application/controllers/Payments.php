@@ -368,4 +368,10 @@ class Payments extends MY_Controller {
         $this->load->view('payment/import_payment', $this->data);
         $this->load->view('layout/footer', $this->data);
     }
+
+    public function apply_penalty() {
+        $this->db->query("SELECT
+                            
+                        ");
+    }
 }
