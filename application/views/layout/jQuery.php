@@ -59,6 +59,9 @@
 <!-- bootstrap time picker -->
 <script src="<?php echo $admin_design_path;?>assets/js/bootstrap-timepicker.min.js"></script>
 
+<!-- daterangepicker -->
+<script src="<?php echo $admin_design_path;?>assets/js/daterangepicker.min.js"></script>
+
 <script src="<?php echo $admin_design_path;?>assets/js/ct_script.js"></script>
 <script src="<?php echo $admin_design_path;?>assets/js/jquery.gritter.min.js"></script>
 <script src="<?php echo $admin_design_path;?>assets/js/jquery.easypiechart.min.js"></script>

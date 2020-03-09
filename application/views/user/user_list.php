@@ -10,6 +10,36 @@
 
                 <div class="row">
                     <div class="col-xs-12">
+                        <form class="form-horizontal well well-sm">
+                            <div class="form-group" style="margin-bottom: 0px;">
+                                <label 
+                                    class="control-label col-xs-12 col-sm-2 col-sm-offset-5 text-muted" 
+                                    style="font-weight: 600;letter-spacing: 1px;padding-top: 3px;">Filters</label>
+                                <div class="col-xs-12 col-sm-3">
+                                    <div class="clearfix">
+                                        <select id="member_type" class="col-xs-12 col-sm-12">
+                                            <option value=''>All Members Types</option>
+                                            <option value='Advance deposite'>Advance Deposite</option>
+                                            <option value='Cheque'>Cheque</option>
+                                            <option value='ECS'>ECS Members</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-2">
+                                    <div class="clearfix">
+                                        <select id="status" class="col-xs-12 col-sm-12">
+                                            <option value=''>All Status</option>
+                                            <option value='Active'>Active</option>
+                                            <option value='Deactive'>Deactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
                         <!-- PAGE CONTENT BEGINS -->
 
 
@@ -67,6 +97,8 @@
                                         <th>Address</th>
                                         <th>Nominee1</th>
                                         <th>Nominee2</th>
+                                        <th>Status</th>
+                                        <th>Balance</th>
                                         <th>Inactivity Date</th>
                                         <th>Action</th>
                                         </thead>
@@ -82,6 +114,8 @@
                                                         <td><?php echo $user['address']; ?></td>
                                                         <td><?php echo $user['nominee1']; ?></td>
                                                         <td><?php echo $user['nominee2']; ?></td>
+                                                        <td><?php echo $user['status']; ?></td>
+                                                        <td><?php echo $user['balance']; ?></td>
                                                         <td><?php echo $user['inactivity_date']; ?></td>
                                                         <td>
                                                             <a class="btn btn-primary btn-xs  no-padding-top no-padding-bottom" href="<?php echo $admin_add_user_link . '/' . $user['user_id']; ?>">
@@ -128,9 +162,20 @@
         .parent().addClass("active open");
 
     var $dynamic_table = $('#dynamic_table');
-    $dynamic_table.dataTable({
+    d_table = $dynamic_table.dataTable({
         "pageLength": 25
     });
+
+    $("#member_type, #status").change(function(e){
+        
+        var member_type_s = $("#member_type").val() || "";
+        member_type_s = (member_type_s) ? '^' + member_type_s +'$' : "";
+        var status_s = $("#status").val() || "";
+        status_s = (status_s) ? '^' + status_s +'$' : "";
+
+        d_table.api().column(2).search(member_type_s,true).column(6).search(status_s,true).draw();
+    });
+
 </script>
 
 
@@ -138,7 +183,6 @@
     $('.user_delete_btn').click(function () {
         // escape here if the confirm is false;
         if (!confirm('All the data of this user will be deleted. Are you sure you want to Delete?')) return false;
-
     });
 </script>
 
