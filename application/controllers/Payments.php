@@ -418,15 +418,25 @@ class Payments extends MY_Controller {
         $this->data['penalty_members'] = $penlty_members;
         if($this->input->server("REQUEST_METHOD") == "POST") {
             
+            $members = $this->input->post('user_id');
+            $penalty =$this->input->post('penalty');
 
-            if(!empty($penlty_members)) {
-                foreach($penlty_members as $member) {
+            // echo "<pre>"; print_r($members);die;
+            if(!empty($members)) {
+                foreach($members as $member) {
                     //entry in transaction for the penalty ledger
-                    $data = [
-                        'user_id'=>$member['user_id'],
-                        'amount'=>10
+                    $data[] = [
+                        'user_id'=>$member,
+                        'amount'=>$penalty,
+                        'ledger_id'=>4,
+                        'type'=>'credit',
+                        'status'=>'UNPAID',
+                        'date_created'=>date("Y-m-d H:i:s")
                     ];
                 }
+
+                // echo "<pre>"; print_r($data);die;
+                $this->db->insert_batch('transactions', $data);
             }
         }
 

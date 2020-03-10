@@ -64,8 +64,8 @@
 
                                         <div class="step-content pos-rel">
                                             <div class="step-pane active" data-step="1">
-                                                <form class="form-horizontal" id="recieve_payment_form" method="post"
-                                                      action="<?php echo base_url(); ?>">
+                                                <form class="form-horizontal" id="apply_penalty_form" method="post"
+                                                      action="<?php echo base_url(); ?>payments/apply_penalty">
                                                       <table class="table">
                                                         <thead>
                                                             <tr>
@@ -150,6 +150,31 @@
             } else {
                 $memberCheckBox.prop('checked', false);
             }
-        })
+        });
+
+        $("#apply_penalty_form").on("submit", function(e){
+            e.preventDefault();
+            var $form = $(this);
+            $checkedMembers = $memberCheckBox.filter(":checked");
+            if(!$checkedMembers.length) {
+                alert("Please select members for the penalty.");
+                return false;
+            }
+
+            var memberIds = $checkedMembers.map(function(){
+                return $(this).val();
+            }).get();
+
+            $.ajax({
+                url: $form.attr('action'),
+                method: 'post',
+                dataType: 'json',
+                async: false,
+                data: {'user_id': memberIds, 'penalty':10},
+                success: function(res) {
+                    console.log(res);return;
+                }
+            });
+        });
     });
 </script>
