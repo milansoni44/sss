@@ -72,7 +72,7 @@ class Actions extends MY_Controller {
 
                 $int_paid_amount = (float)(($interest['balance']*4)/100);
                 
-                $this->db->query("UPDATE user_master SET balance = {$interest['balance']}+{$int_paid_amount}");
+                $this->db->query("UPDATE user_master SET balance = {$interest['balance']}+{$int_paid_amount} WHERE user_type = 'Advance Deposite' AND status = 'Active'");
                 // echo "<pre>".$this->db->last_query();
                 $transactions = [
                     'user_id'=>$interest['user_id'],
@@ -126,9 +126,9 @@ class Actions extends MY_Controller {
                                             AND user_type <> 'Admin'
                                             ")->result_array();
                 
-        // echo "<pre>"; 
+        echo "<pre>"; 
         // echo "Total Active Members :".count($active_members)."<br/>";
-        // print_r($active_members);die;
+        // print_r($active_members);
 
         /*Get Total Inactive members between $start and $end*/
         $demise_members = $this->db->query("SELECT
@@ -140,6 +140,88 @@ class Actions extends MY_Controller {
                                             AND demise_date BETWEEN '{$start}' AND '{$end}'
                                             ")->row_array();
         // print_r($demise_members);die;
+        if(!empty($active_members)) {
+            foreach($active_members as $transaction) {
+                // if($transaction['user_id'] != 3) continue;
+                $txtArr = explode(',', $demise_members['user_demises_ids']);
+                if(!empty($txtArr)) {
+                    $instituteRate = (30*$demise_members['total_demises']);
+                    $institute = [
+                        'user_id'=>$transaction['user_id'],
+                        'amount'=>$instituteRate,
+                        'ledger_id'=>3,
+                        'date_created'=>date('Y-m-d H:i:s'),
+                        'status'=> ($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
+                    ];
+                    
+                    if($transaction['user_type'] == 'Advance deposite') {
+                        $institute['payment_mode'] = 'Deposite';
+                    }
+                    // print_r($institute);die;
+                    $this->db->insert("transactions", $institute);
+                    if($transaction['user_type'] == "Advance deposite") {
+                        $this->db->set('balance', 'balance-'.$instituteRate, false);
+                        $this->db->where('user_id' , $transaction['user_id']);
+                        $this->db->update('user_master');
+
+                        // ledger update
+                        $this->db->set('balance', 'balance+'.$instituteRate, false);
+                        $this->db->where('id' , 3);
+                        $this->db->update('ledger');
+                    }
+                }
+
+                // print_r($demiseArr);
+                foreach($txtArr as $txn) {
+                    // check user membership year > 25 years
+                    if($transaction['membership_years'] < 25) {
+                        $demise = [
+                            'user_id'=>$transaction['user_id'],
+                            'amount'=>100,
+                            'demise_user_id'=>$txn,
+                            'date_created'=>date('Y-m-d H:i:s'),
+                            'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
+                        ];
+                        if($transaction['user_type'] == 'Advance deposite') {
+                            $demise['payment_mode'] = 'Deposite';
+                        }
+                        // print_r($demise);
+                        $this->db->insert("transactions", $demise);
+                        if($transaction['user_type'] == "Advance deposite") {
+                            $this->db->set('balance', 'balance-100', false);
+                            $this->db->where('user_id' , $transaction['user_id']);
+                            $this->db->update('user_master');
+                        }
+                    }
+                    // print_r($demise);
+                }
+
+                $administrative = [
+                    'user_id'=>$transaction['user_id'],
+                    'amount'=>90,
+                    'ledger_id'=>1,
+                    'date_created'=>date('Y-m-d H:i:s'),
+                    'status'=>($transaction['user_type'] != "Advance deposite") ? 'UNPAID' : 'PAID'
+                ];
+                
+                if($transaction['user_type'] == 'Advance deposite') {
+                    $administrative['payment_mode'] = 'Deposite';
+                }
+                // print_r($administrative);
+                $this->db->insert("transactions", $administrative);
+                if($transaction['user_type'] == "Advance deposite") {
+                    $this->db->set('balance', 'balance-90', false);
+                    $this->db->where('user_id' , $transaction['user_id']);
+                    $this->db->update('user_master');
+
+                    // ledger update
+                    $this->db->set('balance', 'balance+90', false);
+                    $this->db->where('id' , 1);
+                    $this->db->update('ledger');
+                }
+            }
+        }
+        echo 'Success';die;
     }
 
     public function send_invoice_email($fn_year,$start,$end) {

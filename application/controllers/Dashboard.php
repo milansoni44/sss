@@ -21,16 +21,29 @@ class Dashboard extends MY_Controller
 
 		$badge_data = $this
                             ->db
-                            ->query("
-                                SELECT
-                                ledger.name,
-                                (
-                                    IFNULL(SUM(debit_tr.amount),0) - IFNULL(SUM(credit_tr.amount),0)
-                                ) as `balance`
-                            FROM ledger
-                            LEFT JOIN transactions as debit_tr ON debit_tr.ledger_id = ledger.id AND debit_tr.type = 'Debit' AND debit_tr.status='PAID'
-                            LEFT JOIN transactions as credit_tr ON credit_tr.ledger_id = ledger.id AND credit_tr.type = 'Credit' AND credit_tr.status='PAID'
-                            GROUP BY ledger.id")
+							->query("
+									SELECT
+										ledger.name,
+										IFNULL((
+											SELECT
+												SUM(amount)
+											FROM transactions
+											WHERE transactions.ledger_id = ledger.id
+											AND type = 'Debit'
+											AND status = 'PAID'
+										) 
+										-
+										(
+											SELECT
+												SUM(amount)
+											FROM transactions
+											WHERE transactions.ledger_id = ledger.id
+											AND type = 'Credit'
+											AND status = 'PAID'
+										),0) AS balance
+									FROM ledger
+									GROUP BY ledger.id
+                                ")
 							->result_array();
 		
 		$this->data['badge_data'] = $badge_data;

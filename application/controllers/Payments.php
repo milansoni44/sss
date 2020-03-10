@@ -93,8 +93,8 @@ class Payments extends MY_Controller {
                 $date_arr = explode(" - ",$date_range); // 2020-03-09 - 2020-03-09
                 $where .= " AND (DATE(transactions.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
                 
-                $debit_tr_where .= " AND (DATE(debit_tr.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
-                $credit_tr_where .= " AND (DATE(credit_tr.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
+                $debit_tr_where .= " AND transactions.date_created BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}'";//" AND (DATE(debit_tr.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
+                $credit_tr_where .= " AND transactions.date_created BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}'";//" AND (DATE(credit_tr.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
             }
             $c = $this->db->query($sql.$where.$orderBy);
             $records_filtered = $this->db->affected_rows();
@@ -109,17 +109,33 @@ class Payments extends MY_Controller {
             $badge_data = $this
                             ->db
                             ->query("
-                                SELECT
+                            SELECT
                                 ledger.name,
+                                IFNULL((
+                                    SELECT
+                                        SUM(amount)
+                                    FROM transactions
+                                    WHERE transactions.ledger_id = ledger.id
+                                    AND type = 'Debit'
+                                    AND status = 'PAID'
+                                    {$debit_tr_where}
+                                    GROUP BY transactions.ledger_id
+                                ) 
+                                -
                                 (
-                                    IFNULL(SUM(debit_tr.amount),0) - IFNULL(SUM(credit_tr.amount),0)
-                                ) as `balance`
+                                    SELECT
+                                        SUM(amount)
+                                    FROM transactions
+                                    WHERE transactions.ledger_id = ledger.id
+                                    AND type = 'Credit'
+                                    AND status = 'PAID'
+                                    {$credit_tr_where}
+                                    GROUP BY transactions.ledger_id
+                                ),0) AS balance
                             FROM ledger
-                            LEFT JOIN transactions as debit_tr ON debit_tr.ledger_id = ledger.id AND debit_tr.type = 'Debit' AND debit_tr.status='PAID' {$debit_tr_where}
-                            LEFT JOIN transactions as credit_tr ON credit_tr.ledger_id = ledger.id AND credit_tr.type = 'Credit' AND credit_tr.status='PAID' {$credit_tr_where}
                             GROUP BY ledger.id")
                             ->result_array();
-
+            // echo $this->db->last_query();die;
             $json_data = array(
                 "draw"            => intval( $request['draw'] ),
                 "badge_data"      => $badge_data,
