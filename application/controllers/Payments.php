@@ -401,8 +401,6 @@ class Payments extends MY_Controller {
         $penlty_members = $this->db->query("SELECT
                                 transactions.user_id,
                                 user_master.name,
-                                DATE(transactions.date_created),
-                                DATEDIFF(CURDATE(), DATE(transactions.date_created)),
                                 DAY(LAST_DAY(transactions.date_created)),
                                 MONTHNAME(CURDATE()) AS month_name,
                                 YEAR(CURDATE()) AS penalty_year
@@ -410,7 +408,16 @@ class Payments extends MY_Controller {
                             LEFT JOIN user_master ON user_master.user_id = transactions.user_id
                             WHERE user_master.status = 'Active'
                             AND transactions.status = 'UNPAID'
-                            AND DATEDIFF(CURDATE(), DATE(transactions.date_created)) > DAY(LAST_DAY(transactions.date_created))
+                            AND DATEDIFF(CURDATE(), transactions.date_created) > 30
+                            AND(
+                                MONTH(CURDATE()) IS NULL
+                                OR YEAR(CURDATE()) IS NULL
+                            )
+                            #AND (
+                            #    MONTH(CURDATE()) IS NULL
+                            #    AND YEAR(CURDATE()) IS NULL
+                            #    OR DATEDIFF(CURDATE(), DATE(transactions.date_created)) > DAY(LAST_DAY(transactions.date_created))
+                            #)
                             GROUP BY transactions.user_id
                             ")->result_array();
             // echo "<pre>";
@@ -431,7 +438,9 @@ class Payments extends MY_Controller {
                         'ledger_id'=>4,
                         'type'=>'credit',
                         'status'=>'UNPAID',
-                        'date_created'=>date("Y-m-d H:i:s")
+                        'date_created'=>date("Y-m-d H:i:s"),
+                        'penalty_month'=>date('m'),
+                        'penalty_year'=>date('Y')
                     ];
                 }
 

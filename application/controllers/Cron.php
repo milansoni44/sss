@@ -321,7 +321,7 @@ class Cron extends CI_Controller {
                 foreach($attachments as $atached_file) {
                     if(file_exists($atached_file)){
                         unlink($atached_file);
-                    }                    
+                    }
                 }
             }
         }
