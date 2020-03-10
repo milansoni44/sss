@@ -46,6 +46,7 @@ class MY_Controller extends CI_Controller
         $this->data['admin_dashboard_link'] = $this->data['admin_base_url'] . 'dashboard/';
         $this->user_module_links();
         $this->payment_module_links();
+        $this->action_module_links();
     }
 
     public function user_module_links()
@@ -69,6 +70,14 @@ class MY_Controller extends CI_Controller
         $this->data['admin_pay_membership_fee_link'] = $primary_url . 'pay_membership_fee';
         $this->data['admin_post_payment_individually'] = $primary_url . 'post_payment_individually';
         $this->data['admin_import_payment'] = $primary_url . 'import_payment';
+
+        // ******************************** User Module * End ********************************
+    }
+    public function action_module_links()
+    {
+        // ******************************** User Module * Start ********************************
+        $primary_url = $this->data['admin_base_url'] . 'actions/';
+        $this->data['admin_actions_page'] = $primary_url . 'index';
 
         // ******************************** User Module * End ********************************
     }

@@ -401,4 +401,10 @@ class User extends MY_Controller {
         return TRUE;
     }
 
+    public function send_reminder($user_id) {
+
+        // Send Email Notification
+        echo "Send Reminder Here".$user_id;
+    }
+
 }

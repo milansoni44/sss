@@ -124,6 +124,15 @@
                                                             <a href="<?php echo base_url(); ?>user/change_nominee/<?php echo $user['user_id']; ?>" class="btn btn-primary btn-xs  no-padding-top no-padding-bottom">
                                                                 Change Nominee
                                                             </a>
+                                                            <?php if($user['user_type'] == 'Advance deposite'): ?>
+                                                            <a href="<?php echo base_url(); ?>user/send_reminder/<?php echo $user['user_id']; ?>" 
+                                                                class="btn btn-primary btn-xs no-padding-top no-padding-bottom send_reminder"
+                                                                title="Send Reminder Email"
+                                                                data-balance="<?php echo $user['balance']; ?>"
+                                                            >
+                                                                <i class="fa fa-envelope-o"></i>
+                                                            </a>
+                                                            <?php endif;?>
                                                         </td>
                                                     </tr>
                                                     <?php
@@ -164,6 +173,17 @@
     var $dynamic_table = $('#dynamic_table');
     d_table = $dynamic_table.dataTable({
         "pageLength": 25
+    }).on('click','.send_reminder',function(e){
+        e.preventDefault();
+        var $this = $(this);
+        var balance = $this.data('balance') || 0;
+        if(balance > 2000) {
+            if(confirm("Member's balance is more then 2000, do you still want to send him notification?")) {
+                window.location.href = $this.attr('href');
+            }
+        } else {
+            window.location.href = $this.attr('href');
+        }
     });
 
     $("#member_type, #status").change(function(e){
