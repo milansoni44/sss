@@ -65,35 +65,47 @@
                                         <div class="step-content pos-rel">
                                             <div class="step-pane active" data-step="1">
                                                 <form class="form-horizontal" id="recieve_payment_form" method="post"
-                                                      action="<?php echo $admin_post_payment_individually; ?>">
-                                                    <div class="form-group">
-                                                        <label class="control-label col-xs-12 col-sm-2 no-padding-right"
-                                                                for="name">Member: <span
-                                                                style="color:red;">*</span></label>
+                                                      action="<?php echo base_url(); ?>">
+                                                      <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <td style="text-align:center;"><input type="checkbox" id="all_checkbox" /></td>
+                                                                <th>#</th>
+                                                                <th>Member Name</th>
+                                                                <th>Month</th>
+                                                                <th>Year</th>
+                                                                <th>Penalty</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php if(!empty($penalty_members)) : 
+                                                                $index = 1;
+                                                                foreach($penalty_members as $member) :
+                                                                    echo "<tr class='text-center'>
+                                                                            <td><input type='checkbox' name='user_id[]' value=".$member['user_id']." class='member_checkbox'/></td>
+                                                                            <td>{$index}</td>
+                                                                            <td>{$member['name']}</td>
+                                                                            <td>{$member['month_name']}</td>
+                                                                            <td>{$member['penalty_year']}</td>
+                                                                            <td>10</td>
+                                                                        </tr>";
+                                                                    
+                                                                        $index++;
 
-                                                        <div class="col-xs-12 col-sm-4">
-                                                            <div class="clearfix">
-                                                                <select class="col-xs-12 col-sm-12" id="member_id" name="member_id" required>
-                                                                    <option value=''>Select Member</option> 
-                                                                    <?php foreach($members as $member) {
-                                                                        $selected = ($member['user_id'] == $user_id) ? 'selected' : '';
-                                                                        echo "<option value='{$member['user_id']}'>{$member['name']}</option>";
-                                                                    }?>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                        
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="col-xs-12 col-sm-3 col-sm-offset-9 text-right">
-                                                            <div class="clearfix">
-                                                                <input type="button" value="Search Pending Payments" class="btn btn-sm btn-success " name="action" style="height: 30px;padding-top: 3px;" id="search_member_btn"/>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                                endforeach;
+                                                            endif;
+                                                            ?>
+                                                        </tbody>
 
-                                                    <div id="container_div"></div>
-                                                    
+                                                      </table>
+
+                                                    <div class="form-group">
+                                                        <div class="col-xs-12 col-sm-12 center">
+                                                            <input type="submit"
+                                                                   value="Apply Penalty"
+                                                                   class="btn btn-sm btn-success" id="add_user_button">
+                                                        </div>
+                                                    </div>
                                                 </form>
                                             </div>
 
@@ -130,55 +142,14 @@
 
     $(document).ready(function ()
     {
-        $("#search_member_btn").click(function(e){
-
-            if($("#member_id").val()) {
-                $.ajax({
-                    type: "POST", 
-                    cache: false,
-                    dataType: 'html',
-                    url: '<?php echo $admin_post_payment_individually;?>',
-                    data: { user_id : $("#member_id").val() },
-                    success : function(data) {
-                        $("#container_div").append(data);
-                        $("#search_member_btn").closest(".form-group").hide(); 
-                    },
-                });
+        var $memberCheckBox = $('.member_checkbox');
+        $("#all_checkbox").on('change', function(e){
+            var $this = $(this);
+            if($this.is(":checked") == true) {
+                $memberCheckBox.prop('checked', true);
             } else {
-                $("#container_div").empty();
+                $memberCheckBox.prop('checked', false);
             }
-        });
-        
-        $("#member_id").change(function(e){
-            $("#container_div").empty();
-            $("#search_member_btn").closest(".form-group").show(); 
-        }).trigger('change');
-
-        $(document).on("change","#all_checkbox", function(e){
-            $("#container_div .user_checkbox").prop("checked",$(this).is(':checked')).trigger('change');
-            /* var $that = $(this);
-            $("#container_div .user_checkbox").each(function(i,e){
-                $(e).prop("checked",$that.is(':checked')).trigger('change');
-            }); */
-        });
-
-        $(document).on("change",".user_checkbox", function(e){
-            $payable_amount = 0;
-            $("#container_div .user_checkbox").each(function(i,e){
-                if($(e).is(':checked')) {
-                    $payable_amount += parseInt($(e).data('amount'));
-                }
-            });
-
-            $("#total_td").text($payable_amount);
-        }).on("click","#pay_button", function(e){
-
-            if($("#container_div .user_checkbox:checked").length == 0) {
-                alert("Please select atleast one transection.");
-            } else {
-                $("#recieve_payment_form").trigger('submit');
-            }
-            
-        });
+        })
     });
 </script>

@@ -398,20 +398,26 @@ class Payments extends MY_Controller {
 
     public function apply_penalty() {
 
-        if($this->input->server("REQUEST_METHOD") == "POST") {
-            $penlty_members = $this->db->query("SELECT
+        $penlty_members = $this->db->query("SELECT
                                 transactions.user_id,
+                                user_master.name,
                                 DATE(transactions.date_created),
                                 DATEDIFF(CURDATE(), DATE(transactions.date_created)),
-                                DAY(LAST_DAY(transactions.date_created))
+                                DAY(LAST_DAY(transactions.date_created)),
+                                MONTHNAME(CURDATE()) AS month_name,
+                                YEAR(CURDATE()) AS penalty_year
                             FROM transactions
                             LEFT JOIN user_master ON user_master.user_id = transactions.user_id
                             WHERE user_master.status = 'Active'
                             AND transactions.status = 'UNPAID'
                             AND DATEDIFF(CURDATE(), DATE(transactions.date_created)) > DAY(LAST_DAY(transactions.date_created))
-                            ");
+                            GROUP BY transactions.user_id
+                            ")->result_array();
             // echo "<pre>";
-            // echo $this->db->last_query();die;
+            // print_r($penlty_members);die;
+        $this->data['penalty_members'] = $penlty_members;
+        if($this->input->server("REQUEST_METHOD") == "POST") {
+            
 
             if(!empty($penlty_members)) {
                 foreach($penlty_members as $member) {

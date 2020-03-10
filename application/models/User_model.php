@@ -70,7 +70,7 @@ class User_model extends MY_Model
 		{
 			
 //			$q = $this->db->get('user_master');
-            $this->db->select("user_master.*,DATE_FORMAT(inactivity_date,'%d-%m-%Y') AS inactivity_date")
+            $this->db->select("user_master.*,DATE_FORMAT(demise_date,'%d-%m-%Y') AS inactivity_date")
                     ->from('user_master')
                 ->where('user_type != ','Admin' )
                 ->order_by("name",'ASC')
