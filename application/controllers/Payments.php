@@ -82,11 +82,13 @@ class Payments extends MY_Controller {
             if($member_id = $request['member']) {
                 $where .= " AND transactions.user_id = {$member_id}";
             }
+            if($ledger_id = $request['ledger_id']) {
+                $where .= " AND transactions.ledger_id = {$ledger_id}";
+            }
             if($date_range = $request['date_range']) {                
                 $date_arr = explode(" - ",$date_range); // 2020-03-09 - 2020-03-09
                 $where .= " AND (DATE(transactions.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
             }
-            // echo $sql.$where;die;
             $c = $this->db->query($sql.$where.$orderBy);
             $records_filtered = $this->db->affected_rows();
             $limit = "";
@@ -122,6 +124,7 @@ class Payments extends MY_Controller {
         }
 
         $this->data['members'] = $this->db->select("user_id, name")->from("user_master")->where("user_type <> 'Admin'")->get()->result_array();
+        $this->data['ledgers'] = $this->db->select("id, name")->from("ledger")->get()->result_array();
 
         $this->data['page_name'] = "Payments";
 		$this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
