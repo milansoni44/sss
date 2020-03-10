@@ -84,3 +84,5 @@ ALTER TABLE `user_master` ADD `financial_year` YEAR NULL DEFAULT NULL AFTER `ina
 |Changes dated: 10-03-2020| By Milan Soni
 ****************************************************************************
 ALTER TABLE `transactions` ADD `penalty_month` INT NULL AFTER `fy_end_date`, ADD `penalty_year` INT NULL AFTER `penalty_month`;
+=======
+ALTER TABLE `transactions` ADD `financial_year` YEAR NULL DEFAULT NULL AFTER `type`, ADD `fy_start_date` DATE NULL DEFAULT NULL AFTER `financial_year`, ADD `fy_end_date` DATE NULL DEFAULT NULL AFTER `fy_start_date`;

@@ -7,6 +7,39 @@
             <div class="page-content">
                 <div class="row">
                     <div class="col-xs-12">
+                        <?php if ($success = $this->session->flashdata("success")) { ?>
+                            <div class="alert alert-block alert-success" id="alert_success" style="margin-top: 10px;">
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <i class="ace-icon fa fa-times"></i>
+                                </button>
+                                <p>
+                                    <strong>
+                                        <i class="ace-icon fa fa-check"></i>
+                                        Success!
+                                    </strong>
+                                    <?php echo $success; ?>.
+                                </p>
+                            </div>
+                        <?php } ?>
+
+                        <?php if ($failure = $this->session->flashdata("failure")) { ?>
+                            <div class="alert alert-danger" id="alert_failure" style="margin-top: 10px;">
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <i class="ace-icon fa fa-times"></i>
+                                </button>
+
+                                <strong>
+                                    <i class="ace-icon fa fa-times"></i>
+                                    Failure!
+                                </strong>
+                                <?php echo $failure; ?>.
+                                <br>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
                         <form class="form-horizontal" action="<?php echo $admin_actions_page;?>" method="post">
                             <div class="form-group">
                                 <label class="control-label col-xs-12 col-sm-2" >Financial Year</label>
