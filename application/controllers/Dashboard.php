@@ -44,6 +44,39 @@ class Dashboard extends MY_Controller
 
 		$this->data['total_active_members'] = $active_members['total_active_members'];
 
+		$year = date('Y');
+		$month = date('m');
+
+		if($month <= 3) $year--;
+
+		$fn_start = "{$year}-04-01";
+		$h2_start = date('Y-m-d',strtotime($fn_start. " +6 months"));
+		$h1_end = date('Y-m-d',strtotime($h2_start. " -1 days"));
+		$fn_end = date('Y-m-d',strtotime($h2_start. " +6 months -1 days"));
+
+		// echo $fn_start,"<br/>";
+		// echo $h1_end,"<br/>";
+		// echo $h2_start,"<br/>";
+		// echo $fn_end,"<br/>";
+		
+		$start = $end = null;
+		if(strtotime(date('Y-m-d')) >= $fn_start && strtotime(date('Y-m-d')) <= $h1_end) {
+			$start = $fn_start;
+			$end = $h1_end;
+		} else {
+			$start = $h2_start;
+			$end = $fn_end;
+		}
+
+		$demise_members = $this->db->query("SELECT
+                                                COUNT(*) AS total_demises
+                                            FROM user_master
+                                            WHERE status = 'Deactive'
+                                            AND user_type <> 'Admin'
+                                            AND demise_date BETWEEN '{$start}' AND '{$end}'
+                                            ")->row_array();
+
+		$this->data['total_demises'] = $demise_members['total_demises'];
         $this->data['page_name'] = '';
         
         $this->data['breadcrumb'] = $this->load->view('user/breadcrumb', $this->data, TRUE);

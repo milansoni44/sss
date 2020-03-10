@@ -26,13 +26,8 @@
                             </div>
 
                             <div class="infobox-data">
-                                <span class="infobox-data-number">11</span>
+                                <span class="infobox-data-number"><?php echo $total_demises;?></span>
                                 <div class="infobox-content">Demices (6 months)</div>
-                            </div>
-
-                            <div class="badge badge-success">
-                                +32%
-                                <i class="ace-icon fa fa-arrow-up"></i>
                             </div>
                         </div>
                     </div>
