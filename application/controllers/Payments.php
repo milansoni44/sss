@@ -86,7 +86,7 @@ class Payments extends MY_Controller {
                 $date_arr = explode(" - ",$date_range); // 2020-03-09 - 2020-03-09
                 $where .= " AND (DATE(transactions.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
             }
-// echo $sql.$where;die;
+            // echo $sql.$where;die;
             $c = $this->db->query($sql.$where.$orderBy);
             $records_filtered = $this->db->affected_rows();
             $limit = "";
@@ -399,26 +399,20 @@ class Payments extends MY_Controller {
     public function apply_penalty() {
 
         $penlty_members = $this->db->query("SELECT
-                                transactions.user_id,
-                                user_master.name,
-                                DAY(LAST_DAY(transactions.date_created)),
-                                MONTHNAME(CURDATE()) AS month_name,
-                                YEAR(CURDATE()) AS penalty_year
-                            FROM transactions
-                            LEFT JOIN user_master ON user_master.user_id = transactions.user_id
-                            WHERE user_master.status = 'Active'
-                            AND transactions.status = 'UNPAID'
-                            AND DATEDIFF(CURDATE(), transactions.date_created) > 30
-                            AND(
-                                MONTH(CURDATE()) IS NULL
-                                OR YEAR(CURDATE()) IS NULL
-                            )
-                            #AND (
-                            #    MONTH(CURDATE()) IS NULL
-                            #    AND YEAR(CURDATE()) IS NULL
-                            #    OR DATEDIFF(CURDATE(), DATE(transactions.date_created)) > DAY(LAST_DAY(transactions.date_created))
-                            #)
-                            GROUP BY transactions.user_id
+                                                transactions.user_id,
+                                                user_master.name,
+                                                transactions.date_created,
+                                                transactions.penalty_month,
+                                                transactions.penalty_year,
+                                                MONTHNAME(CURDATE()) AS month_name,
+                                                YEAR(CURDATE()) AS penalty_year
+                                            FROM transactions
+                                            LEFT JOIN user_master ON user_master.user_id = transactions.user_id
+                                            WHERE TIMESTAMPDIFF(MONTH, DATE(date_created), CURDATE()) > 0
+                                            AND transactions.status = 'UNPAID'
+                                            #AND penalty_month <> MONTH(CURDATE())
+                                            #AND penalty_year <> YEAR(CURDATE())
+                                            GROUP BY user_id
                             ")->result_array();
             // echo "<pre>";
             // print_r($penlty_members);die;
@@ -436,7 +430,7 @@ class Payments extends MY_Controller {
                         'user_id'=>$member,
                         'amount'=>$penalty,
                         'ledger_id'=>4,
-                        'type'=>'credit',
+                        'type'=>'Debit',
                         'status'=>'UNPAID',
                         'date_created'=>date("Y-m-d H:i:s"),
                         'penalty_month'=>date('m'),

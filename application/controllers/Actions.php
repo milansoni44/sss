@@ -100,9 +100,9 @@ class Actions extends MY_Controller {
             $this->db->trans_complete();
 
             if($this->db->trans_status() === TRUE) {
-                $this->session->set_flashdata("success", "Interest Payment transection completed.");
+                $this->session->set_flashdata("success", "Interest Payment transaction completed.");
             } else {
-                $this->session->set_flashdata("error", "Interest Payment transection failed.");
+                $this->session->set_flashdata("error", "Interest Payment transaction failed.");
             }
 
         } else {
