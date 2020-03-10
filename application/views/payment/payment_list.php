@@ -22,8 +22,18 @@ $start_date = date('Y-m-d',strtotime(date('Y-m-d'). ' -1 months'));
                         <form class="form-horizontal well well-sm">
                             <div class="form-group" style="margin-bottom: 0px;">
                                 <label 
-                                    class="control-label col-xs-12 col-sm-2 col-sm-offset-4 text-muted" 
+                                    class="control-label col-xs-12 col-sm-2 col-sm-offset-1 text-muted" 
                                     style="font-weight: 600;letter-spacing: 1px;padding-top: 3px;">Filters</label>
+                                <div class="col-xs-12 col-sm-3">
+                                    <div class="clearfix">
+                                        <select id="ledger_id" class="col-xs-12 col-sm-12">`
+                                            <option value=''>All Ledgers</option>
+                                            <?php foreach($ledgers as $ledger){
+                                                echo "<option value='{$ledger['id']}'>{$ledger['name']}</option>";
+                                            }?>                                            
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="col-xs-12 col-sm-3">
                                     <div class="clearfix">
                                         <select id="member" class="col-xs-12 col-sm-12">`
@@ -187,6 +197,7 @@ $start_date = date('Y-m-d',strtotime(date('Y-m-d'). ' -1 months'));
                 "data": function(d) {
                     return $.extend({},d,{
                         "member":$("#member").val(),
+                        "ledger_id":$("#ledger_id").val(),
                         "date_range":$("#date_range").val(),
                     });
                 }
@@ -215,7 +226,7 @@ $start_date = date('Y-m-d',strtotime(date('Y-m-d'). ' -1 months'));
             ],
 		});
 
-    $("#date_range, #member").change(function(e){
+    $("#date_range, #member, #ledger_id").change(function(e){
         oTable.draw();
     });
 
