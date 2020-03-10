@@ -384,8 +384,42 @@ class Payments extends MY_Controller {
     }
 
     public function apply_penalty() {
-        $this->db->query("SELECT
-                            
-                        ");
+
+        if($this->input->server("REQUEST_METHOD") == "POST") {
+            $penlty_members = $this->db->query("SELECT
+                                transactions.user_id,
+                                DATE(transactions.date_created),
+                                DATEDIFF(CURDATE(), DATE(transactions.date_created)),
+                                DAY(LAST_DAY(transactions.date_created))
+                            FROM transactions
+                            LEFT JOIN user_master ON user_master.user_id = transactions.user_id
+                            WHERE user_master.status = 'Active'
+                            AND transactions.status = 'UNPAID'
+                            AND DATEDIFF(CURDATE(), DATE(transactions.date_created)) > DAY(LAST_DAY(transactions.date_created))
+                            ");
+            // echo "<pre>";
+            // echo $this->db->last_query();die;
+
+            if(!empty($penlty_members)) {
+                foreach($penlty_members as $member) {
+                    //entry in transaction for the penalty ledger
+                    $data = [
+                        'user_id'=>$member['user_id'],
+                        'amount'=>10
+                    ];
+                }
+            }
+        }
+
+        $this->data['page_name'] = 'Apply Penalty';
+        $this->data['breadcrumb'] = $this->load->view('payment/breadcrumb', $this->data, TRUE);
+        $this->data['jquery_view'] = $this->load->view('layout/jQuery', $this->data, TRUE);
+
+        $this->data['footer_panel'] = $this->load->view('layout/footer_panel', $this->data, TRUE);
+        $this->data['sidebar'] = $this->load->view('layout/sidebar', $this->data, TRUE);
+
+        $this->load->view('layout/header', $this->data);
+        $this->load->view('payment/penalty', $this->data);
+        $this->load->view('layout/footer', $this->data);
     }
 }
