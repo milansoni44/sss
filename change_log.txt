@@ -73,3 +73,9 @@ CREATE TABLE `periodic_email` (
 |Changes dated: 08-03-2020| By Milan Soni
 ****************************************************************************
 ALTER TABLE `user_master` CHANGE `inactivity_date` `demise_date` DATE NULL DEFAULT NULL;
+
+
+****************************************************************************
+|Changes dated: 10-03-2020| By Rakesh Jangir
+
+ALTER TABLE `user_master` ADD `financial_year` YEAR NULL DEFAULT NULL AFTER `inactivity_date`, ADD `fy_start_date` DATE NULL DEFAULT NULL AFTER `financial_year`, ADD `fy_end_date` DATE NULL DEFAULT NULL AFTER `fy_start_date`;

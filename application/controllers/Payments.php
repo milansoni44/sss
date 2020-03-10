@@ -97,7 +97,20 @@ class Payments extends MY_Controller {
             $rs = $this->db->query($sql.$where.$orderBy.$limit);
             $data =  $rs->result_array();
 
-            $badge_data = $this->db->select("name,balance")->get("ledger")->result_array();
+            $badge_data = $this
+                            ->db
+                            ->query("
+                                SELECT
+                                ledger.name,
+                                (
+                                    IFNULL(SUM(debit_tr.amount),0) - IFNULL(SUM(credit_tr.amount),0)
+                                ) as `balance`
+                            FROM ledger
+                            LEFT JOIN transactions as debit_tr ON debit_tr.ledger_id = ledger.id AND debit_tr.type = 'Debit' AND debit_tr.status='PAID'
+                            LEFT JOIN transactions as credit_tr ON credit_tr.ledger_id = ledger.id AND credit_tr.type = 'Credit' AND credit_tr.status='PAID'
+                            GROUP BY ledger.id")
+                            ->result_array();
+
             $json_data = array(
                 "draw"            => intval( $request['draw'] ),
                 "badge_data"      => $badge_data,

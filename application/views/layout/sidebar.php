@@ -133,6 +133,15 @@
             </ul>
         </li>
 
+        <li class="" id="trigger_actions_list">
+            <a href="<?php echo $admin_actions_page; ?>">
+                <i class="menu-icon fa fa-tasks"></i>
+                <span class="menu-text"> Actions </span>
+            </a>
+
+            <b class="arrow"></b>
+        </li>
+
 
     </ul><!-- /.nav-list -->
 
