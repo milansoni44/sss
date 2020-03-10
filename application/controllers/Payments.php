@@ -79,15 +79,22 @@ class Payments extends MY_Controller {
             }
 
 
+            
             if($member_id = $request['member']) {
                 $where .= " AND transactions.user_id = {$member_id}";
             }
             if($ledger_id = $request['ledger_id']) {
                 $where .= " AND transactions.ledger_id = {$ledger_id}";
             }
+
+            $debit_tr_where = "";
+            $credit_tr_where = "";
             if($date_range = $request['date_range']) {                
                 $date_arr = explode(" - ",$date_range); // 2020-03-09 - 2020-03-09
                 $where .= " AND (DATE(transactions.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
+                
+                $debit_tr_where .= " AND (DATE(debit_tr.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
+                $credit_tr_where .= " AND (DATE(credit_tr.date_created) BETWEEN '{$date_arr[0]}' AND '{$date_arr[1]}')";
             }
 
             $c = $this->db->query($sql.$where.$orderBy);
@@ -109,8 +116,8 @@ class Payments extends MY_Controller {
                                     IFNULL(SUM(debit_tr.amount),0) - IFNULL(SUM(credit_tr.amount),0)
                                 ) as `balance`
                             FROM ledger
-                            LEFT JOIN transactions as debit_tr ON debit_tr.ledger_id = ledger.id AND debit_tr.type = 'Debit' AND debit_tr.status='PAID'
-                            LEFT JOIN transactions as credit_tr ON credit_tr.ledger_id = ledger.id AND credit_tr.type = 'Credit' AND credit_tr.status='PAID'
+                            LEFT JOIN transactions as debit_tr ON debit_tr.ledger_id = ledger.id AND debit_tr.type = 'Debit' AND debit_tr.status='PAID' {$debit_tr_where}
+                            LEFT JOIN transactions as credit_tr ON credit_tr.ledger_id = ledger.id AND credit_tr.type = 'Credit' AND credit_tr.status='PAID' {$credit_tr_where}
                             GROUP BY ledger.id")
                             ->result_array();
 
