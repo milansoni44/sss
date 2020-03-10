@@ -220,6 +220,7 @@ class Cron extends CI_Controller {
         $mpdf->Output($file_name,$modeArr[$mode]);
     }
 
+    //this function is shifted in Actions.php
     public function interest_paid() {
         // 3 monthly
         // pay interest 4% in user account
