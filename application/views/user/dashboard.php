@@ -27,7 +27,7 @@
 
                             <div class="infobox-data">
                                 <span class="infobox-data-number"><?php echo $total_demises;?></span>
-                                <div class="infobox-content">Demices (6 months)</div>
+                                <div class="infobox-content">Demise (6 months)</div>
                             </div>
                         </div>
                     </div>

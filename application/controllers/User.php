@@ -130,43 +130,35 @@ class User extends MY_Controller {
     }
 
     public function change_nominee($user_id = NULL) {
+
         if($user_id) {
+            
             $this->data['page_name'] = 'Nominee Update';
             $this->data['user_id'] = $user_id;
             $user_info = $this->user_model->get_user(["user_id"=>$user_id]);
+            
+
             if(!$user_info) {
                 $this->session->set_flashdata("failure", "No member found.");
                 redirect($this->data['admin_user_list_link'], 'location');
             }
+
+            $this->data['user_info'] = $user_info;
+            
             if($this->input->server("REQUEST_METHOD") == "POST") {
+                
                 // echo "<pre>"; print_r($_POST);die;
-                $userInfo = $this->db->query("SELECT * FROM user_master WHERE user_id = '{$user_id}'")->row_array();
-                // echo "<pre>"; print_r($userInfo);die;
+
                 $nominee_1 = trim($this->input->post("nominee1"));
                 $nominee_2 = trim($this->input->post("nominee2"));
-
                 $nominee1_reimbursement = trim($this->input->post("nominee1_reimbursement"));
                 $nominee2_reimbursement = trim($this->input->post("nominee2_reimbursement"));
 
-                // check if the nominies are changed or not
-                $result1 = $this->db->query("SELECT nominee1 FROM user_master WHERE nominee1 = '{$nominee_1}' AND user_id = '{$user_id}'")->row_array();
-                $result2 = $this->db->query("SELECT nominee2 FROM user_master WHERE nominee2 = '{$nominee_2}' AND user_id = '{$user_id}'")->row_array();
-                $result3 = $this->db->query("SELECT nominee1_reimbursement FROM user_master WHERE nominee1_reimbursement = '{$nominee1_reimbursement}' AND user_id = '{$user_id}'")->row_array();
-                $result4 = $this->db->query("SELECT nominee2_reimbursement FROM user_master WHERE nominee2_reimbursement = '{$nominee2_reimbursement}' AND user_id = '{$user_id}'")->row_array();
-                echo "<pre>";
-                var_dump($result1);
-                var_dump($result2);
-                var_dump($result3);
-                var_dump($result4);
-                $user_data = [
-                    "nominee1"=>$nominee_1,
-                    "nominee2"=>$nominee_2,
-                    "nominee1_reimbursement"=>$nominee1_reimbursement,
-                    "nominee2_reimbursement"=>$nominee2_reimbursement
-                ];
-                if(!$result1) {
-                    // changed the nominee 1
-                    $this->db->update("user_master", $user_data);
+                $does_changed = ($user_info['nominee1'] != $nominee_1 || $user_info['nominee2'] != $nominee_2 || $user_info['nominee1_reimbursement'] != $nominee1_reimbursement || $user_info['nominee2_reimbursement'] != $nominee2_reimbursement);
+                
+                if($does_changed) {
+
+                    $this->db->trans_start();
 
                     // transaction will be updated with 50 RS charge
                     $dataTransaction = [
@@ -175,11 +167,20 @@ class User extends MY_Controller {
                         "ledger_id"=>3,
                         "date_created"=>date('Y-m-d H:i:s'),
                         "type"=>"Debit",
-                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID"
+                        "status"=>($user_info['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
+                        "payment_mode"=>($user_info['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
                     ];
-                    // echo "<pre>"; print_r($dataTransaction);die;
                     $this->db->insert("transactions", $dataTransaction);
-                    if($userInfo['user_type'] == 'Advance deposite') {
+
+                    $user_data = [
+                        "nominee1"=>$nominee_1,
+                        "nominee2"=>$nominee_2,
+                        "nominee1_reimbursement"=>$nominee1_reimbursement,
+                        "nominee2_reimbursement"=>$nominee2_reimbursement
+                    ];
+                    $this->db->where("user_id", $user_id)->update("user_master", $user_data);
+
+                    if($user_info['user_type'] == 'Advance deposite') {
                         // ledger balance update
                         $this->db->set('balance', 'balance+50', false);
                         $this->db->where('id' , 3);
@@ -190,93 +191,18 @@ class User extends MY_Controller {
                         $this->db->where('user_id' , $user_id);
                         $this->db->update('user_master');
                     }
-                    $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
-                }
 
-                if(!$result2) {
-                    // changed the nominee 1
-                    // transaction will be updated with 50 RS charge
-                    $dataTransaction = [
-                        "user_id"=>$user_id,
-                        "amount"=>50,
-                        "ledger_id"=>3,
-                        "date_created"=>date('Y-m-d H:i:s'),
-                        "type"=>"Debit",
-                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
-                        "payment_mode"=>($userInfo['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
-                    ];
-                    $this->db->insert("transactions", $dataTransaction);
-                    if($userInfo['user_type'] == 'Advance deposite') {
-                        // ledger balance update
-                        $this->db->set('balance', 'balance+50', false);
-                        $this->db->where('id' , 3);
-                        $this->db->update('ledger');
+                    $this->db->trans_complete();
 
-                        // user balance update
-                        $this->db->set('balance', 'balance-50', false);
-                        $this->db->where('user_id' , $user_id);
-                        $this->db->update('user_master');
+                    if($this->db->trans_status() === TRUE) {
+                        $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
+                    } else {
+                        $this->session->set_flashdata("failure", "Member's nominee has not been changed successfully.");
                     }
-                    $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
+                } else {
+                    $this->session->set_flashdata("success", "Nothing to update.");
                 }
 
-                if(!$result3) {
-                    // changed the nominee 1
-                    // transaction will be updated with 50 RS charge
-                    $dataTransaction = [
-                        "user_id"=>$user_id,
-                        "amount"=>50,
-                        "ledger_id"=>3,
-                        "date_created"=>date('Y-m-d H:i:s'),
-                        "type"=>"Debit",
-                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
-                        "payment_mode"=>($userInfo['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
-                    ];
-                    $this->db->insert("transactions", $dataTransaction);
-                    if($userInfo['user_type'] == 'Advance deposite') {
-                        // ledger balance update
-                        $this->db->set('balance', 'balance+50', false);
-                        $this->db->where('id' , 3);
-                        $this->db->update('ledger');
-
-                        // user balance update
-                        $this->db->set('balance', 'balance-50', false);
-                        $this->db->where('user_id' , $user_id);
-                        $this->db->update('user_master');
-                    }
-                    $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
-                }
-
-                if(!$result4) {
-                    // changed the nominee 1
-                    // transaction will be updated with 50 RS charge
-                    $dataTransaction = [
-                        "user_id"=>$user_id,
-                        "amount"=>50,
-                        "ledger_id"=>3,
-                        "date_created"=>date('Y-m-d H:i:s'),
-                        "type"=>"Debit",
-                        "status"=>($userInfo['user_type'] == 'Advance deposite') ? "PAID" : "UNPAID",
-                        "payment_mode"=>($userInfo['user_type'] == 'Advance deposite') ? "Deposite" : NULL,
-                    ];
-                    $this->db->insert("transactions", $dataTransaction);
-                    if($userInfo['user_type'] == 'Advance deposite') {
-                        // ledger balance update
-                        $this->db->set('balance', 'balance+50', false);
-                        $this->db->where('id' , 3);
-                        $this->db->update('ledger');
-
-                        // user balance update
-                        $this->db->set('balance', 'balance-50', false);
-                        $this->db->where('user_id' , $user_id);
-                        $this->db->update('user_master');
-                    }
-                    $this->session->set_flashdata("success", "Member's nominee has been changed successfully.");
-                }
-
-                if($result4 && $result3 && $result2 && $result1) {
-                    $this->session->set_flashdata("success", "Member's nominee is not changed yet.");
-                }
                 redirect($this->data['admin_user_list_link'], 'location');
             }
 

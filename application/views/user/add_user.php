@@ -140,7 +140,7 @@
                                                         </div>
 
                                                         <label class="control-label col-xs-12 col-sm-2 no-padding-right"
-                                                               for="nominee1_reimbursement">Nominee1 Reimbursement:<span
+                                                               for="nominee1_reimbursement">Nominee1 Reimbursement (%):<span
                                                                 style="color:red;">*</span></label>
 
                                                         <div class="col-xs-12 col-sm-4">
@@ -171,7 +171,7 @@
                                                         </div>
 
                                                         <label class="control-label col-xs-12 col-sm-2 no-padding-right"
-                                                               for="nominee2_reimbursement">Nominee2 Reimbursement:<span
+                                                               for="nominee2_reimbursement">Nominee2 Reimbursement (%):<span
                                                                 style="color:red;">*</span></label>
 
                                                         <div class="col-xs-12 col-sm-4">
@@ -187,7 +187,7 @@
                                                     <div class="form-group">
 
                                                         <label class="control-label col-xs-12 col-sm-2 no-padding-right"
-                                                               for="inactivity_date">Inactivity date:<span
+                                                               for="inactivity_date">Date of Demise:<span
                                                                 style="color:red;">*</span></label>
 
                                                         <div class="col-xs-12 col-sm-4">
@@ -200,7 +200,7 @@
                                                         </div>
 
                                                         <label class="control-label col-xs-12 col-sm-2 no-padding-right"
-                                                               for="inactivity_date">Membership Fee:<span
+                                                               for="inactivity_date">Fixed Administrative Fee:<span
                                                                 style="color:red;">*</span></label>
 
                                                         <div class="col-xs-12 col-sm-4">

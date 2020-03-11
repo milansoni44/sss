@@ -99,7 +99,7 @@
                                         <th>Nominee2</th>
                                         <th>Status</th>
                                         <th>Balance</th>
-                                        <th>Inactivity Date</th>
+                                        <th>Date of Demise</th>
                                         <th>Action</th>
                                         </thead>
                                         <tbody>
