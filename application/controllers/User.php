@@ -404,7 +404,8 @@ class User extends MY_Controller {
     public function send_reminder($user_id) {
 
         // Send Email Notification
-        echo "Send Reminder Here".$user_id;
+        $url = base_url() . "user/userList";
+        show_error("Reminder mail will be send after integrating third party.<br/><a href='{$url}'>Go Back</a>",200,"Integration Required");
     }
 
 }

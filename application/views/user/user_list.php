@@ -124,7 +124,7 @@
                                                             <a href="<?php echo base_url(); ?>user/change_nominee/<?php echo $user['user_id']; ?>" class="btn btn-primary btn-xs  no-padding-top no-padding-bottom">
                                                                 Change Nominee
                                                             </a>
-                                                            <?php if($user['user_type'] == 'Advance deposite'): ?>
+                                                            <?php if($user['user_type'] == 'Advance deposite' && !$user['inactivity_date']): ?>
                                                             <a href="<?php echo base_url(); ?>user/send_reminder/<?php echo $user['user_id']; ?>" 
                                                                 class="btn btn-primary btn-xs no-padding-top no-padding-bottom send_reminder"
                                                                 title="Send Reminder Email"

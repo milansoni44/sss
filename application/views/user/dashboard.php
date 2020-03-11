@@ -11,7 +11,7 @@
                     <div class="col-sm-5 infobox-container">
                         <div class="infobox infobox-green">
                             <div class="infobox-icon">
-                                <i class="ace-icon fa fa-comments"></i>
+                                <i class="ace-icon fa fa-user"></i>
                             </div>
 
                             <div class="infobox-data">
@@ -22,7 +22,7 @@
 
                         <div class="infobox infobox-blue">
                             <div class="infobox-icon">
-                                <i class="ace-icon fa fa-twitter"></i>
+                                <i class="ace-icon fa fa-ambulance"></i>
                             </div>
 
                             <div class="infobox-data">

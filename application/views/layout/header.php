@@ -74,9 +74,10 @@
 
 				<div class="navbar-header pull-left">
 					<a href="<?php echo $admin_dashboard_link; ?>" class="navbar-brand">
-						<small>
-							<i class="fa fa-group"></i>
-							Horus SSS
+						<small>						
+							<img src="<?php echo base_url(); ?>assets/images/logo-trans.png" 
+							style="border: 1px solid white;width: 23px;border-radius: 50%;background: #fff;"/>
+							<span style="font-size: 97%;letter-spacing: 1px;">Horus Tech</span>
 						</small>
 					</a>
 				</div>

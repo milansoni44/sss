@@ -59,7 +59,8 @@ class User_model extends MY_Model
 	{
 		if( $data['user_id'] )
 		{
-			$q  = $this->db->get_where('user_master', array('user_id'=>$data['user_id']));
+			$q = $this->db->select("user_master.*,DATE_FORMAT(demise_date,'%d-%m-%Y') AS inactivity_date")->from("user_master")->where("user_id", $data['user_id'])->get();
+			// $q  = $this->db->get_where('user_master', array('user_id'=>$data['user_id']));
             /*$this->db->select("user_master")
                 ->where('fcm IS NOT ',NULL)
                 ->from('user_master');

@@ -1,5 +1,5 @@
 <div class="footer">
-	<div class="footer-inner">
+	<div class="footer-inner" style="display:none;">
 		<div class="footer-content">
 			<span class="bigger-120">
 				Horus SSS
